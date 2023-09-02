@@ -69,7 +69,7 @@ const RoomInfo = () => {
                 <Typography fontSize={15}>AC: {room.isAC ? "Yes" : "No"}</Typography>
                 <Typography fontSize={15}>Maximum Guests: {room.maxGuests}</Typography>
               </Box>
-              {/* Continue with other components */}
+              
               <Typography fontSize={20} sx={{ marginTop: 2 }}>
                 What this room offers:
               </Typography>
@@ -103,7 +103,7 @@ const RoomInfo = () => {
         </Container>
       </main>
       <BookingModal
-        room={room} // Pass the room data to BookingModal
+        room={room} 
         open={open}
         handleClose={() => setOpen(false)}
       />

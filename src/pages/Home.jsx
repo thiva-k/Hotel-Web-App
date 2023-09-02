@@ -5,7 +5,7 @@ import { RoomCard } from '../components/RoomCard';
 import { LoadingSkeleton } from '../components/LoadingSkeleton';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../lib/firebase';
-import { useQuery } from 'react-query'; // Import useQuery
+import { useQuery } from 'react-query'; 
 
 export default function Home({ setDarkMode }) {
   const fetchRooms = async () => {

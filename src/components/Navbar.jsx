@@ -94,9 +94,9 @@ export const Navbar = () => {
 
 
           </Box>
-          {/* Rest of the Navbar */}
+          
           <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
-            {/* Dark Mode Toggle */}
+            
             <FormGroup sx={{ display: { xs: "none", md: "flex" } }}>
               <FormControlLabel
                 control={

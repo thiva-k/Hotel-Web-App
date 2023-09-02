@@ -38,31 +38,31 @@ export default function Login() {
       <Container
         sx={{
           display: "flex",
-          flexDirection: "column", // Vertical layout
+          flexDirection: "column", 
           justifyContent: "center",
           alignItems: "center",
           height: "100vh",
         }}
         maxWidth="md"
       >
-        {/* Crown Logo */}
+        
         <img
           src="/crown_logo.svg"
           alt="Crown Logo"
           style={{
             width: "175px",
             height: "auto",
-            marginBottom: "75px", // Add space between logo and text
+            marginBottom: "75px", 
             filter: "invert(1)",
           }}
         />
 
-        {/* Text */}
+        
         <Typography textAlign={"center"} variant="h4" sx={{ marginBottom: 4 }}>
           Welcome to Crown Hotels ®
         </Typography>
 
-        {/* Login Button */}
+        
         <Button onClick={handleLogin} variant="outlined" color="primary" sx={{ marginBottom: 20 }}>
           Login
         </Button>

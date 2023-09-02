@@ -36,7 +36,7 @@ export default function MyProfile() {
     const bookingsQuery = query(
       collection(db, "bookings"),
       where("bookedBy.uid", "==", currentUser?.uid),
-      orderBy("bookingStartDate", "desc") // Sort by booking start date in descending order
+      orderBy("bookingStartDate", "desc") 
     );
 
     const unsubscribe = onSnapshot(bookingsQuery, (snapshot) => {
