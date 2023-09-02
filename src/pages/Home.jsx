@@ -1,18 +1,22 @@
-import React, { useEffect, useState } from "react";
-import { Navbar } from "../components/Navbar";
-import { Container, Grid } from "@mui/material";
-import { HotelCard } from "../components/HotelCard";
-import { LoadingSkeleton } from "../components/LoadingSkeleton";
-import { getHotels } from "../api/request";
-import { useQuery } from "react-query";
+import React from 'react';
+import { Navbar } from '../components/Navbar';
+import { Container, Grid } from '@mui/material';
+import { RoomCard } from '../components/RoomCard';
+import { LoadingSkeleton } from '../components/LoadingSkeleton';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../lib/firebase';
+import { useQuery } from 'react-query'; // Import useQuery
 
 export default function Home({ setDarkMode }) {
-  const fetchHotels = async () => {
-    const { data } = await getHotels();
+  const fetchRooms = async () => {
+    const roomsCollection = collection(db, 'rooms');
+    const querySnapshot = await getDocs(roomsCollection);
+    const data = querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    console.log(data);
     return data;
   };
 
-  const { data, isLoading } = useQuery("hotels", fetchHotels);
+  const { data, isLoading } = useQuery('rooms', fetchRooms);
 
   return isLoading ? (
     <LoadingSkeleton />
@@ -20,11 +24,11 @@ export default function Home({ setDarkMode }) {
     <>
       <Navbar setDarkMode={setDarkMode} />
       <main>
-        <Container maxWidth={"lg"} sx={{ marginTop: 3 }}>
+        <Container maxWidth={'lg'} sx={{ marginTop: 3 }}>
           <Grid container spacing={2}>
             {data?.map((item) => (
               <Grid key={item.id} item xs={12} md={4}>
-                <HotelCard hotel={item} />
+                <RoomCard room={item} />
               </Grid>
             ))}
           </Grid>

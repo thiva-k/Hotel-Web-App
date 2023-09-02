@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import "react-date-range/dist/styles.css"; //
+import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
 import {
   Modal,
@@ -21,10 +21,10 @@ import { toast } from "react-hot-toast";
 import { bookModalStyle } from "../helper/styles";
 import { useNavigate } from "react-router-dom";
 
-export const BookingModal = ({ open, handleClose, hotelInfo }) => {
+export const BookingModal = ({ open, handleClose, room }) => {
   const { currentUser } = useContext(AuthContext);
-  const navigate=useNavigate()
-  const [guests, setGuests] = useState();
+  const navigate = useNavigate();
+  const [guests, setGuests] = useState([]);
   const [selectedGuestCount, setSelectedGuestCount] = useState(1);
   const [dates, setDates] = useState([
     {
@@ -35,57 +35,85 @@ export const BookingModal = ({ open, handleClose, hotelInfo }) => {
   ]);
   const [isLoading, setIsLoading] = useState(false);
 
+  useEffect(() => {
+    // Calculate the maximum number of guests based on room data
+    const maxGuests = room?.maxGuests || 1; // Use maxGuests or a default value
+    setGuests(numberOfGuests(maxGuests));
+  }, [room]);
+
   const handleChange = (event) => {
     setSelectedGuestCount(event.target.value);
   };
 
   function numberOfGuests(maxGuest) {
     const guestsArr = [];
-
     for (let i = 1; i <= maxGuest; i++) {
       guestsArr.push(i);
     }
     return guestsArr;
   }
 
-  useEffect(() => {
-    setGuests(numberOfGuests(hotelInfo?.rooms[0]?.content?.split(" ")[0]));
-  }, [hotelInfo]);
-
   function getTotalNightsBooked() {
     const startDate = getDate(dates[0].startDate);
     const endDate = getDate(dates[0].endDate);
-    const totalnightsBooked = endDate - startDate;
-    return totalnightsBooked;
+    const totalNightsBooked = endDate - startDate;
+    return totalNightsBooked;
   }
-
-  getTotalNightsBooked();
 
   const bookings = collection(db, "bookings");
 
   const handleReserve = async () => {
     setIsLoading(true);
     const { uid, displayName } = currentUser;
+    const pricePerNight = room?.pricePerNight || 0;
+    const totalNights = getTotalNightsBooked();
+    const totalPrice = pricePerNight * totalNights;
+
+    const startDate = dates[0]?.startDate;
+    const endDate = dates[0]?.endDate;
+
+    // Format the dates to the desired format
+    const formattedStartDate = startDate.toLocaleString("en-US", {
+      weekday: "short",
+      year: "numeric",
+      month: "short",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      timeZoneName: "short",
+    });
+
+    const formattedEndDate = endDate.toLocaleString("en-US", {
+      weekday: "short",
+      year: "numeric",
+      month: "short",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      timeZoneName: "short",
+    });
+
     await addDoc(bookings, {
-      hotelAddress: hotelInfo.address,
-      hotelName: hotelInfo.name,
+      roomTitle: room?.title || "Room",
       numberOfGuests: selectedGuestCount,
-      bookingStartDate: `${dates[0].startDate}`,
-      bookingEndDate: `${dates[0].endDate}`,
-      price: hotelInfo?.pricePerNight * getTotalNightsBooked(),
+      bookingStartDate: formattedStartDate, // Use formatted date
+      bookingEndDate: formattedEndDate, // Use formatted date
+      price: totalPrice,
       bookedBy: {
         uid,
         displayName,
       },
     })
       .then(() => {
-        toast.success("booking successfull");
+        toast.success("Booking successful");
         handleClose();
-        navigate('/my-profile')
+        navigate('/my-profile');
         setIsLoading(false);
       })
       .catch((error) => {
-        toast.error(error);
+        toast.error(error.message);
         setIsLoading(false);
       });
   };
@@ -99,7 +127,7 @@ export const BookingModal = ({ open, handleClose, hotelInfo }) => {
     >
       <Box sx={bookModalStyle}>
         <Typography id="modal-modal-title" variant="h6" component="h2">
-          ${hotelInfo?.pricePerNight} /night
+          ${room?.pricePerNight || 0} /night
         </Typography>
         <FormControl fullWidth sx={{ marginTop: 3 }}>
           <InputLabel id="demo-simple-select-label">
@@ -112,7 +140,7 @@ export const BookingModal = ({ open, handleClose, hotelInfo }) => {
             label="Number of Adults"
             onChange={handleChange}
           >
-            {guests?.map((guest) => (
+            {guests.map((guest) => (
               <MenuItem key={guest} value={guest}>
                 {guest}
               </MenuItem>
@@ -143,7 +171,7 @@ export const BookingModal = ({ open, handleClose, hotelInfo }) => {
             component="p"
             variant="h6"
           >
-            ${hotelInfo?.pricePerNight} x{" "}
+            ${room?.pricePerNight || 0} x{" "}
             {dates[0]?.endDate ? getTotalNightsBooked() : 0} nights
           </Typography>
 
@@ -155,7 +183,7 @@ export const BookingModal = ({ open, handleClose, hotelInfo }) => {
           >
             $
             {dates[0]?.endDate
-              ? hotelInfo?.pricePerNight * getTotalNightsBooked()
+              ? (room?.pricePerNight || 0) * getTotalNightsBooked()
               : 0}
           </Typography>
         </Box>
@@ -167,12 +195,12 @@ export const BookingModal = ({ open, handleClose, hotelInfo }) => {
         >
           Subtotal: $
           {dates[0]?.endDate
-            ? hotelInfo?.pricePerNight * getTotalNightsBooked()
+            ? (room?.pricePerNight || 0) * getTotalNightsBooked()
             : 0}
         </Typography>
         <Button
           onClick={handleReserve}
-          sx={{ width: "100%", marginTop: 2 }}
+          sx={{ width: "100%", marginTop: 2, marginLeft: 0 }}
           variant="outlined"
           color="primary"
           disabled={!dates[0].endDate}

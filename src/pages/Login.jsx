@@ -29,7 +29,7 @@ export default function Login() {
   };
 
   useEffect(() => {
-    auth.onAuthStateChanged((user) => user && navigate("/hotels"));
+    auth.onAuthStateChanged((user) => user && navigate("/rooms"));
   });
 
   return (
@@ -39,7 +39,7 @@ export default function Login() {
         maxWidth="md"
       >
         <Typography textAlign={"center"} variant="h4" sx={{ marginBottom: 4 }}>
-          Welcome to BookStay
+          Welcome to Crown Hotels
         </Typography>
         <Button onClick={handleLogin} variant="outlined" color="primary">
           Login with google

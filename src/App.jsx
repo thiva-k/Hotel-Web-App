@@ -10,7 +10,7 @@ import PrivateRoute from "./components/PrivateRoute";
 import { QueryClient, QueryClientProvider } from "react-query";
 
 const Home = lazy(() => import("./pages/Home"));
-const HotelInfo = lazy(() => import("./pages/HotelInfo"));
+const RoomInfo = lazy(() => import("./pages/RoomInfo"));
 
 const queryClient = new QueryClient();
 
@@ -26,12 +26,12 @@ export default function App() {
               <Routes>
                 <Route path="/" element={<Login />} />
                 <Route
-                  path="/hotels"
+                  path="/rooms"
                   element={<PrivateRoute component={Home} />}
                 />
                 <Route
-                  path="/hotels/:slug"
-                  element={<PrivateRoute component={HotelInfo} />}
+                  path="/rooms/:id"
+                  element={<PrivateRoute component={RoomInfo} />}
                 />
                 <Route
                   path="/my-profile"

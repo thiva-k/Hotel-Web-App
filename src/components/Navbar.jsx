@@ -51,14 +51,14 @@ export const Navbar = () => {
           }}
         >
           <Typography
-            onClick={() => navigate("/hotels")}
+            onClick={() => navigate("/rooms")}
             sx={{ cursor: "pointer" }}
             variant="h6"
             color="inherit"
             component="div"
             fontWeight={"bold"}
           >
-            BookStay
+            Book Rooms
           </Typography>
           <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
             <FormGroup sx={{ display: { xs: "none", md: "flex" } }}>
@@ -82,7 +82,7 @@ export const Navbar = () => {
               DarkMode
             </Typography>
             <Typography
-              onClick={() => navigate("/hotels")}
+              onClick={() => navigate("/rooms")}
               sx={{ cursor: "pointer" }}
               fontSize={15}
               variant="h6"
