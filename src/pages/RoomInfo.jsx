@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { collection, doc, getDoc } from "firebase/firestore";
-import { db } from "..//lib/firebase"; // Import your Firebase configuration
+import { db } from "..//lib/firebase"; 
 import {
   Box,
   Button,
@@ -9,6 +9,7 @@ import {
   Container,
   ListItem,
   Typography,
+  List,
 } from "@mui/material";
 import { Navbar } from "../components/Navbar";
 import { BookingModal } from "../components/BookingModal";
@@ -26,14 +27,14 @@ const RoomInfo = () => {
         const roomDoc = await getDoc(roomRef);
 
         if (roomDoc.exists()) {
-          // Room data found, update state
+          
           setRoom(roomDoc.data());
         } else {
-          // Room data not found, handle accordingly (e.g., show an error message)
+          
           console.log("Room not found");
         }
       } catch (error) {
-        // Handle any errors that may occur during the fetch
+       
         console.error("Error fetching room data:", error);
       }
     };
@@ -56,38 +57,46 @@ const RoomInfo = () => {
               <Typography fontSize={40} sx={{ lineHeight: 1.9, marginBottom: 3 }}>
                 {room.title}
               </Typography>
-              {/* ... Other components */}
-              <Typography variant="subtitle1" sx={{ marginTop: 2 }}>
+              
+              <Typography fontSize={25} variant="subtitle1" sx={{ marginTop: 2 }}>
                 {room.description}
               </Typography>
-              {/* ... Other components */}
+             
               <Box sx={{ marginTop: 2 }}>
-                <Typography variant="h5">What this place offers:</Typography>
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexDirection: "column", // Display items in a vertical column
-                    alignItems: "flex-start", // Align items to the start of the column
-                    marginTop: 1, // Add some margin between items
-                  }}
-                >
-                  {room.offers.map((offer, index) => (
-                    <Typography key={index} variant="caption">
-                      {offer}
-                    </Typography>
-                  ))}
-                </Box>
-                <Box
-                  sx={{
-                    display: "flex", // Keep the button in a flex layout
-                    marginTop: 10, // Add margin between the button and the items
-                    marginLeft: 0, // Remove margin from the left of the button
-                  }}
-                >
-                  <Button onClick={() => setOpen(true)} variant="outlined">
-                    Reserve
-                  </Button>
-                </Box>
+                <Typography fontSize={20} >Room Details:</Typography>
+                <Typography sx={{ marginTop: 1 }} fontSize={15}>Number of Beds: {room.numBeds}</Typography>
+                <Typography fontSize={15}>Number of Baths: {room.numBaths}</Typography>
+                <Typography fontSize={15}>AC: {room.isAC ? "Yes" : "No"}</Typography>
+                <Typography fontSize={15}>Maximum Guests: {room.maxGuests}</Typography>
+              </Box>
+              {/* Continue with other components */}
+              <Typography fontSize={20} sx={{ marginTop: 2 }}>
+                What this room offers:
+              </Typography>
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "flex-start",
+                  marginTop: 1,
+                }}
+              >
+                {room.offers.map((offer, index) => (
+                  <Typography fontSize={15} key={index} variant="caption">
+                    {offer}
+                  </Typography>
+                ))}
+              </Box>
+              <Box
+                sx={{
+                  display: "flex",
+                  marginTop: 10,
+                  marginLeft: 0,
+                }}
+              >
+                <Button onClick={() => setOpen(true)} variant="outlined">
+                  Reserve
+                </Button>
               </Box>
             </>
           )}

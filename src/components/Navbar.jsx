@@ -1,3 +1,4 @@
+import React, { useContext } from "react";
 import {
   AppBar,
   Avatar,
@@ -14,7 +15,6 @@ import {
   Toolbar,
 } from "@mui/material";
 import { signOut } from "firebase/auth";
-import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { auth } from "../lib/firebase";
@@ -50,17 +50,53 @@ export const Navbar = () => {
             paddingY: 1.2,
           }}
         >
-          <Typography
-            onClick={() => navigate("/rooms")}
-            sx={{ cursor: "pointer" }}
-            variant="h6"
-            color="inherit"
-            component="div"
-            fontWeight={"bold"}
-          >
-            Book Rooms
-          </Typography>
+          
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            <img
+              src="/crown_logo.svg" 
+              alt="Crown Logo"
+              style={{
+                width: 50, 
+                marginRight: 50, 
+                filter: "invert(1)",
+              }}
+            />
+            <Typography
+              onClick={() => navigate("/rooms")}
+              sx={{ cursor: "pointer" }}
+              variant="h6"
+              color="inherit"
+              component="div"
+              fontWeight={"bold"}
+            >
+              Book Rooms
+            </Typography>
+
+            <Typography
+               sx={{ cursor: "pointer" }}
+               variant="h6"
+               color="inherit"
+               component="div"
+               fontWeight={"bold"}
+               marginLeft={5}>
+              View Menu
+            </Typography>
+
+            <Typography
+               sx={{ cursor: "pointer" }}
+               variant="h6"
+               color="inherit"
+               component="div"
+               fontWeight={"bold"}
+               marginLeft={5}>
+              Chat With Us 
+            </Typography>
+
+
+          </Box>
+          {/* Rest of the Navbar */}
           <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+            {/* Dark Mode Toggle */}
             <FormGroup sx={{ display: { xs: "none", md: "flex" } }}>
               <FormControlLabel
                 control={
@@ -127,7 +163,7 @@ export const Navbar = () => {
             <MenuItem
               onClick={() => {
                 navigate("/my-profile");
-                handleClose;
+                handleClose();
               }}
             >
               My Profile
