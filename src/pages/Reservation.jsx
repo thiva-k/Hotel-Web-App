@@ -33,62 +33,75 @@ const ReservationForm = () => {
       // Validate date and time format
       const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
       const timeRegex = /^\d{2}:\d{2}$/;
-
+  
       if (!dateRegex.test(selectedDate) || !timeRegex.test(selectedStartTime)) {
         throw new Error('Invalid date or time format');
       }
-
-      // Convert selectedDate and selectedStartTime to Firestore Timestamps
-      const formattedDate = selectedDate.split('-').reverse().join('-');
-      const formattedStartTime = `${formattedDate}T${selectedStartTime}:00.000Z`;
-      const startTime = new Date(formattedStartTime);
+  
+      // Combine selectedDate and selectedStartTime into a single ISO 8601 datetime string
+      const formattedDateTime = `${selectedDate}T${selectedStartTime}:00.000Z`;
+      const startTime = new Date(formattedDateTime);
       const endTime = new Date(startTime);
       endTime.setHours(startTime.getHours() + parseInt(selectedHours));
-
+  
       // Query Firestore to get all documents in the 'tables' collection
       const tablesCollectionRef = collection(db, 'tables');
       const tablesSnapshot = await getDocs(tablesCollectionRef);
-
+  
       if (tablesSnapshot.empty) {
         console.log('No tables found');
         return;
       }
-
-      // Find an available table
-      let availableTableID = null;
-      const selectedDateTimeRange = {
-        start: Timestamp.fromDate(startTime), // Use Firestore Timestamp here
-        end: Timestamp.fromDate(endTime), // Use Firestore Timestamp here
-      };
-
+  
+      // Initialize an array to store available table IDs
+      const availableTableIDs = [];
+  
+      // Iterate through the tables collection to find available tables
       tablesSnapshot.forEach((tableDoc) => {
         const tableData = tableDoc.data();
-        const bookings = tableData.bookings || [];
-
-        // Check if the selected time slot is available for this table
-        let isSlotAvailable = true;
-
-        for (const booking of bookings) {
-          const bookingStartTime = booking.start.toDate();
-          const bookingEndTime = booking.end.toDate();
-
-          // Check if there is any overlap in time slots
-          if (
-            (selectedDateTimeRange.start.toDate() >= bookingStartTime && selectedDateTimeRange.start.toDate() < bookingEndTime) ||
-            (selectedDateTimeRange.end.toDate() > bookingStartTime && selectedDateTimeRange.end.toDate() <= bookingEndTime) ||
-            (selectedDateTimeRange.start.toDate() <= bookingStartTime && selectedDateTimeRange.end.toDate() >= bookingEndTime)
-          ) {
-            isSlotAvailable = false;
-            break; // No need to check further for this table
-          }
-        }
-
-        if (isSlotAvailable && availableTableID === null) {
-          availableTableID = tableDoc.id; // Use the Firestore document ID
+        const tableID = tableDoc.id;
+  
+        // Check if the table is available
+        if (tableData.isAvailable) {
+          availableTableIDs.push(tableID);
         }
       });
-
-      if (availableTableID !== null) {
+  
+      // Query Firestore to get all documents in the 'tableBookings' collection
+      const tableBookingsCollectionRef = collection(db, 'tableBookings');
+      const tableBookingsSnapshot = await getDocs(tableBookingsCollectionRef);
+  
+      // Iterate through the tableBookings collection to check for conflicts
+      tableBookingsSnapshot.forEach((bookingDoc) => {
+        const bookingData = bookingDoc.data();
+        const bookingStartTime = bookingData.start.toDate();
+        const bookingEndTime = bookingData.end.toDate();
+  
+        // Check if there is any overlap in time slots
+        for (const availableTableID of availableTableIDs) {
+          const selectedDateTimeRange = {
+            start: startTime,
+            end: endTime,
+          };
+  
+          if (
+            (selectedDateTimeRange.start >= bookingStartTime && selectedDateTimeRange.start < bookingEndTime) ||
+            (selectedDateTimeRange.end > bookingStartTime && selectedDateTimeRange.end <= bookingEndTime) ||
+            (selectedDateTimeRange.start <= bookingStartTime && selectedDateTimeRange.end >= bookingEndTime)
+          ) {
+            // Remove the table ID from availableTableIDs if there's a conflict
+            const index = availableTableIDs.indexOf(availableTableID);
+            if (index !== -1) {
+              availableTableIDs.splice(index, 1);
+            }
+          }
+        }
+      });
+  
+      if (availableTableIDs.length > 0) {
+        // Get the first available table ID
+        const availableTableID = availableTableIDs[0];
+  
         // The selected time slot is available, add the reservation to tableBookings
         const reservationData = {
           name: name,
@@ -96,18 +109,18 @@ const ReservationForm = () => {
           numGuests: guests,
           dateTime: serverTimestamp(),
           tableID: availableTableID,
+          start: Timestamp.fromDate(startTime),
+          end: Timestamp.fromDate(endTime),
         };
-
+  
         const tableBookingRef = collection(db, 'tableBookings');
         await addDoc(tableBookingRef, reservationData);
-
+  
         console.log('Reservation added to tableBookings');
-
-        // Reservation successful
         console.log('Reservation successful');
       } else {
-        // No available tables for the selected time slot
-        console.log('No available tables for the selected time slot');
+        // No available tables or selected time slot is no longer available
+        console.log('No available tables or selected time slot is no longer available');
       }
     } catch (error) {
       console.error('Error updating Firestore:', error);
