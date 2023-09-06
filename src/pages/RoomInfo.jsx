@@ -49,7 +49,7 @@ const RoomInfo = () => {
         <Container
           maxWidth={"lg"}
           sx={{
-            marginTop: 2,
+            marginTop: 4,
           }}
         >
           {room && (
@@ -62,9 +62,12 @@ const RoomInfo = () => {
                 {room.description}
               </Typography>
              
-              <Box sx={{ marginTop: 2 }}>
-                <Typography fontSize={20} >Room Details:</Typography>
-                <Typography sx={{ marginTop: 1 }} fontSize={15}>Number of Beds: {room.numBeds}</Typography>
+              <Box sx={{ display: "flex",
+                  flexDirection: "column",
+                  alignItems: "flex-start",
+                  marginTop: 1, }}>
+                <Typography fontSize={20} sx={{ marginBottom: 2 }} >Room Details:</Typography>
+                <Typography  fontSize={15}>Number of Beds: {room.numBeds}</Typography>
                 <Typography fontSize={15}>Number of Baths: {room.numBaths}</Typography>
                 <Typography fontSize={15}>AC: {room.isAC ? "Yes" : "No"}</Typography>
                 <Typography fontSize={15}>Maximum Guests: {room.maxGuests}</Typography>
@@ -90,8 +93,8 @@ const RoomInfo = () => {
               <Box
                 sx={{
                   display: "flex",
-                  marginTop: 10,
-                  marginLeft: 0,
+                  marginTop: 5,
+                 
                 }}
               >
                 <Button onClick={() => setOpen(true)} variant="outlined">

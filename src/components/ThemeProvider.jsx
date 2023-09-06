@@ -8,6 +8,8 @@ import Poppins from '../fonts/Poppins-Medium.ttf';
 
 
 
+
+
 export const ThemeProviderComp = ({children,darkMode}) => {
 
 
@@ -37,8 +39,8 @@ export const ThemeProviderComp = ({children,darkMode}) => {
 
   return (
     <ThemeProvider theme={theme}>
-        <CssBaseline/>
-        {children}
+        <CssBaseline/> 
+        {children}  
     </ThemeProvider>
   )
 }

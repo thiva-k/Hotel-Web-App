@@ -16,7 +16,7 @@ export default function Login() {
       .then(async (result) => {
         const user = result.user;
         if (user) {
-          await setDoc(doc(db, "users", user.uid), {
+          await setDoc(doc(db, "webCustomers", user.uid), {
             uid: user.uid,
             displayName: user.displayName,
             photoURL: user.photoURL,

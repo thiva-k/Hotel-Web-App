@@ -9,7 +9,7 @@ export const RoomCard = ({ room }) => {
     <Card>
       <CardContent>
         <Typography variant="h6" sx={{ cursor: 'pointer' }} onClick={() => navigate(`/rooms/${room.id}`)}>
-          {room.title} {/* Use room title from Firestore data */}
+          {room.title} 
         </Typography>
         <Typography variant="body2">Price per Night: ${room.pricePerNight}</Typography>
         <Typography variant="body2">Beds: {room.numBeds}</Typography>

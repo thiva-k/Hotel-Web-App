@@ -8,6 +8,7 @@ import { LoadingSkeleton } from "./components/LoadingSkeleton";
 import MyProfile from "./pages/MyProfile";
 import PrivateRoute from "./components/PrivateRoute";
 import { QueryClient, QueryClientProvider } from "react-query";
+import Reservation from "./pages/Reservation";
 
 const Home = lazy(() => import("./pages/Home"));
 const RoomInfo = lazy(() => import("./pages/RoomInfo"));
@@ -36,6 +37,10 @@ export default function App() {
                 <Route
                   path="/my-profile"
                   element={<PrivateRoute component={MyProfile} />}
+                />
+                <Route
+                  path="/reserve"
+                  element={<PrivateRoute component={Reservation} />}
                 />
                 <Route path="*" element={<NotFound />} />
               </Routes>

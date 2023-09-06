@@ -3,7 +3,6 @@ import {
   AppBar,
   Avatar,
   Box,
-  Button,
   Container,
   IconButton,
   Menu,
@@ -11,10 +10,9 @@ import {
   Typography,
   FormGroup,
   FormControlLabel,
-  Switch,
   Toolbar,
 } from "@mui/material";
-import { signOut } from "firebase/auth";
+
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { auth } from "../lib/firebase";
@@ -51,45 +49,91 @@ export const Navbar = () => {
           }}
         >
           
-          <Box sx={{ display: "flex", alignItems: "center" }}>
+          <Box sx={{ display: "flex", alignItems: "center",gap: 2 }}>
             <img
               src="/crown_logo.svg" 
               alt="Crown Logo"
               style={{
-                width: 50, 
-                marginRight: 50, 
+                width: 60, 
+                marginRight:20 ,
                 filter: "invert(1)",
               }}
             />
             <Typography
               onClick={() => navigate("/rooms")}
-              sx={{ cursor: "pointer" }}
-              variant="h6"
+              sx={{ cursor: "pointer", transition: "transform 0.2s", 
+              "&:hover": {
+                transform: "scale(1.15)", 
+              } }}
+              variant="h7"
               color="inherit"
               component="div"
               fontWeight={"bold"}
+              border={2}
+              padding={0.75}
             >
               Book Rooms
             </Typography>
 
             <Typography
-               sx={{ cursor: "pointer" }}
-               variant="h6"
+               sx={{ cursor: "pointer", transition: "transform 0.2s", 
+               "&:hover": {
+                 transform: "scale(1.15)", 
+               } }}
+               variant="h7"
                color="inherit"
                component="div"
                fontWeight={"bold"}
-               marginLeft={5}>
+               border={2}
+              padding={0.75}
+               >
               View Menu
             </Typography>
 
             <Typography
-               sx={{ cursor: "pointer" }}
-               variant="h6"
+               onClick={() => navigate("/reserve")}
+               sx={{ cursor: "pointer", transition: "transform 0.2s", 
+               "&:hover": {
+                 transform: "scale(1.15)", 
+               }, }}
+               variant="h7"
                color="inherit"
                component="div"
                fontWeight={"bold"}
-               marginLeft={5}>
+               border={2}
+              padding={0.75}
+               >
+              Reserve Table 
+            </Typography>
+
+            <Typography
+               sx={{ cursor: "pointer", transition: "transform 0.2s", 
+               "&:hover": {
+                 transform: "scale(1.15)", 
+               } }}
+               variant="h7"
+               color="inherit"
+               component="div"
+               fontWeight={"bold"}
+               border={2}
+              padding={0.75}
+               >
               Chat With Us 
+            </Typography>
+
+            <Typography
+               sx={{ cursor: "pointer", transition: "transform 0.2s", 
+               "&:hover": {
+                 transform: "scale(1.15)", 
+               } }}
+               variant="h7"
+               color="inherit"
+               component="div"
+               fontWeight={"bold"}
+               border={2}
+              padding={0.75}
+               >
+              About Us 
             </Typography>
 
 
@@ -117,6 +161,7 @@ export const Navbar = () => {
             >
               DarkMode
             </Typography>
+            
             <Typography
               onClick={() => navigate("/rooms")}
               sx={{ cursor: "pointer" }}
