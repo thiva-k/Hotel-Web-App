@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+
+import { auth, provider } from '../lib/firebase';
 import {
   FormControl,
   InputLabel,
@@ -27,6 +29,9 @@ const ReservationForm = () => {
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().substr(0, 10));
   const [selectedStartTime, setSelectedStartTime] = useState('');
   const [selectedHours, setSelectedHours] = useState(1);
+
+  const user = auth.currentUser;
+  const userID = user ? user.uid : null;
 
   const handleReservation = async () => {
     try {
@@ -111,6 +116,7 @@ const ReservationForm = () => {
           tableID: availableTableID,
           start: Timestamp.fromDate(startTime),
           end: Timestamp.fromDate(endTime),
+          userID: userID,
         };
   
         const tableBookingRef = collection(db, 'tableBookings');
