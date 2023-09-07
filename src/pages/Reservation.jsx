@@ -21,6 +21,7 @@ import {
   Timestamp, // Import Timestamp from Firestore
 } from 'firebase/firestore';
 import { db } from '../lib/firebase.js';
+import ReservartionSuccessModal from '../components/ReservationSuccessModal';
 
 const ReservationForm = () => {
   const [name, setName] = useState('');
@@ -29,6 +30,8 @@ const ReservationForm = () => {
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().substr(0, 10));
   const [selectedStartTime, setSelectedStartTime] = useState('');
   const [selectedHours, setSelectedHours] = useState(1);
+  const [successModalOpen, setSuccessModalOpen] = useState(false);
+  const [tableID, setTableID] = useState('');
 
   const user = auth.currentUser;
   const userID = user ? user.uid : null;
@@ -106,6 +109,9 @@ const ReservationForm = () => {
       if (availableTableIDs.length > 0) {
         // Get the first available table ID
         const availableTableID = availableTableIDs[0];
+        setTableID(availableTableID); // Set the tableID in state
+        setSuccessModalOpen(true); // Open the success modal
+        console.log('Available table ID:', availableTableID);
   
         // The selected time slot is available, add the reservation to tableBookings
         const reservationData = {
@@ -139,7 +145,7 @@ const ReservationForm = () => {
       <Container disableGutters maxWidth={'md'} sx={{ marginTop: 5 }}>
         <div>
           <Typography variant="h6" component="h2" align="center">
-            Reserve your Table
+            Reserve your Table Now !
           </Typography>
 
           <TextField
@@ -200,17 +206,17 @@ const ReservationForm = () => {
               sx={{ flex: '1', marginLeft: 0, marginRight: 0 }}
             />
 
-            <TextField
-              label="Hours"
-              type="number"
-              fullWidth
-              value={selectedHours}
-              onChange={(e) => setSelectedHours(e.target.value)}
-              sx={{ flex: '1', marginLeft: 0, marginRight: 0 }}
-              inputProps={{ min: 1, max: 5 }}
-            />
-          </Container>
-
+<FormControl  sx={{ flex: '1', marginLeft: 0, marginRight: 0}}>
+            <InputLabel>Number of Hours</InputLabel>
+            <Select value={selectedHours} onChange={(e) => setSelectedHours(e.target.value)}>
+              {[1, 2, 3].map((hourCount) => (
+                <MenuItem key={hourCount} value={hourCount}>
+                  {hourCount}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+                </Container>
           <Container
             sx={{
               marginTop: 5,
@@ -229,6 +235,11 @@ const ReservationForm = () => {
               Reserve Table
             </Button>
           </Container>
+          <ReservartionSuccessModal
+            open={successModalOpen}
+            onClose={() => setSuccessModalOpen(false)}
+            tableID={tableID}
+          />
         </div>
       </Container>
     </>
