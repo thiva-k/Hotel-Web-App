@@ -30,7 +30,7 @@ export default function Login() {
   };
 
   useEffect(() => {
-    auth.onAuthStateChanged((user) => user && navigate("/rooms"));
+    auth.onAuthStateChanged((user) => user && navigate("/about"));
   });
 
   return (

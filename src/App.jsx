@@ -9,6 +9,9 @@ import MyProfile from "./pages/MyProfile";
 import PrivateRoute from "./components/PrivateRoute";
 import { QueryClient, QueryClientProvider } from "react-query";
 import Reservation from "./pages/Reservation";
+import Menu from "./pages/Menu";
+import Chat from "./pages/Chat";
+import AboutUs from "./pages/AboutUs";
 
 const Home = lazy(() => import("./pages/Home"));
 const RoomInfo = lazy(() => import("./pages/RoomInfo"));
@@ -41,6 +44,18 @@ export default function App() {
                 <Route
                   path="/reserve"
                   element={<PrivateRoute component={Reservation} />}
+                />
+                <Route
+                  path="/menu"
+                  element={<PrivateRoute component={Menu} />}
+                />
+                <Route
+                  path="/about"
+                  element={<PrivateRoute component={AboutUs} />}
+                />
+                <Route
+                  path="/chat"
+                  element={<PrivateRoute component={Chat} />}
                 />
                 <Route path="*" element={<NotFound />} />
               </Routes>

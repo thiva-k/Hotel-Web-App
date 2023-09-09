@@ -80,6 +80,7 @@ export const Navbar = () => {
                "&:hover": {
                  transform: "scale(1.15)", 
                } }}
+               onClick={() => navigate("/menu")}
                variant="h7"
                color="inherit"
                component="div"
@@ -107,6 +108,7 @@ export const Navbar = () => {
             </Typography>
 
             <Typography
+               onClick={() => navigate("/chat")}
                sx={{ cursor: "pointer", transition: "transform 0.2s", 
                "&:hover": {
                  transform: "scale(1.15)", 
@@ -122,6 +124,7 @@ export const Navbar = () => {
             </Typography>
 
             <Typography
+               onClick={() => navigate("/about")}
                sx={{ cursor: "pointer", transition: "transform 0.2s", 
                "&:hover": {
                  transform: "scale(1.15)", 
@@ -163,14 +166,14 @@ export const Navbar = () => {
             </Typography>
             
             <Typography
-              onClick={() => navigate("/rooms")}
+              onClick={() => navigate("/my-profile")}
               sx={{ cursor: "pointer" }}
               fontSize={15}
               variant="h6"
               color="inherit"
               component="a"
             >
-              Home
+              My Profile
             </Typography>
 
             <IconButton
