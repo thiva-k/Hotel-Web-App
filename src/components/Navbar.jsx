@@ -13,7 +13,7 @@ import {
   Toolbar,
 } from "@mui/material";
 
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { auth } from "../lib/firebase";
 import { MaterialUISwitch } from "./Switch";
@@ -24,6 +24,7 @@ export const Navbar = () => {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
   const navigate = useNavigate();
+  const location = useLocation(); // Get the current location
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -35,6 +36,14 @@ export const Navbar = () => {
   const handleLogout = async () => {
     await auth.signOut().then(() => navigate("/"));
   };
+
+  const tabs = [
+    { label: "Book Rooms", path: "/rooms" },
+    { label: "View Menu", path: "/menu" },
+    { label: "Reserve Table", path: "/reserve" },
+    { label: "Chat With Us", path: "/chat" },
+    { label: "About Us", path: "/about" },
+  ];
 
   return (
     <AppBar position="sticky" color="inherit">
@@ -48,102 +57,44 @@ export const Navbar = () => {
             paddingY: 1.2,
           }}
         >
-          
-          <Box sx={{ display: "flex", alignItems: "center",gap: 2 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
             <img
-              src="/crown_logo.svg" 
+              src="/crown_logo.svg"
               alt="Crown Logo"
               style={{
-                width: 60, 
-                marginRight:20 ,
+                width: 60,
+                marginRight: 20,
                 filter: "invert(1)",
               }}
             />
-            <Typography
-              onClick={() => navigate("/rooms")}
-              sx={{ cursor: "pointer", transition: "transform 0.2s", 
-              "&:hover": {
-                transform: "scale(1.15)", 
-              } }}
-              variant="h7"
-              color="inherit"
-              component="div"
-              fontWeight={"bold"}
-              border={2}
-              padding={0.75}
-            >
-              Book Rooms
-            </Typography>
-
-            <Typography
-               sx={{ cursor: "pointer", transition: "transform 0.2s", 
-               "&:hover": {
-                 transform: "scale(1.15)", 
-               } }}
-               onClick={() => navigate("/menu")}
-               variant="h7"
-               color="inherit"
-               component="div"
-               fontWeight={"bold"}
-               border={2}
-              padding={0.75}
-               >
-              View Menu
-            </Typography>
-
-            <Typography
-               onClick={() => navigate("/reserve")}
-               sx={{ cursor: "pointer", transition: "transform 0.2s", 
-               "&:hover": {
-                 transform: "scale(1.15)", 
-               }, }}
-               variant="h7"
-               color="inherit"
-               component="div"
-               fontWeight={"bold"}
-               border={2}
-              padding={0.75}
-               >
-              Reserve Table 
-            </Typography>
-
-            <Typography
-               onClick={() => navigate("/chat")}
-               sx={{ cursor: "pointer", transition: "transform 0.2s", 
-               "&:hover": {
-                 transform: "scale(1.15)", 
-               } }}
-               variant="h7"
-               color="inherit"
-               component="div"
-               fontWeight={"bold"}
-               border={2}
-              padding={0.75}
-               >
-              Chat With Us 
-            </Typography>
-
-            <Typography
-               onClick={() => navigate("/about")}
-               sx={{ cursor: "pointer", transition: "transform 0.2s", 
-               "&:hover": {
-                 transform: "scale(1.15)", 
-               } }}
-               variant="h7"
-               color="inherit"
-               component="div"
-               fontWeight={"bold"}
-               border={2}
-              padding={0.75}
-               >
-              About Us 
-            </Typography>
-
-
+            {tabs.map((tab) => (
+              <Typography
+                key={tab.path}
+                onClick={() => navigate(tab.path)}
+                style={{
+                  cursor: "pointer",
+                  transition: "transform 1s",
+                  padding: "0.75rem",
+                  border: "2px solid transparent",
+                  fontWeight: "bold",
+                  ...(location.pathname === tab.path
+                    ? {
+                        transform: "scale(1.15)",
+                        backgroundColor: "#D3D1D0",
+                        color: "#000000",
+                      }
+                    : {}),
+                }}
+                variant="h7"
+                color="inherit"
+                component="div"
+              >
+                {tab.label}
+              </Typography>
+            ))}
           </Box>
-          
+
           <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
-            
             <FormGroup sx={{ display: { xs: "none", md: "flex" } }}>
               <FormControlLabel
                 control={
@@ -164,10 +115,10 @@ export const Navbar = () => {
             >
               DarkMode
             </Typography>
-            
+
             <Typography
               onClick={() => navigate("/my-profile")}
-              sx={{ cursor: "pointer" }}
+              style={{ cursor: "pointer" }}
               fontSize={15}
               variant="h6"
               color="inherit"

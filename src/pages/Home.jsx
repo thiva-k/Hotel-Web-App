@@ -6,6 +6,7 @@ import { LoadingSkeleton } from '../components/LoadingSkeleton';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useQuery } from 'react-query'; 
+import Footer from '../components/Footer';
 
 export default function Home({ setDarkMode }) {
   const fetchRooms = async () => {
@@ -34,6 +35,7 @@ export default function Home({ setDarkMode }) {
           </Grid>
         </Container>
       </main>
+      <Footer />
     </>
   );
 }

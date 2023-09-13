@@ -5,12 +5,13 @@ import {
   DialogTitle,
   Typography,
   Button,
-  Grid, // Import Grid for centering
+  Grid,
 } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
+const ReservationSuccessModal = ({ open, onClose, tableID, reservationKey }) => {
+  
 
-const ReservationSuccessModal = ({ open, onClose, tableID }) => {
   return (
     <Dialog open={open} onClose={onClose}>
       <DialogTitle>Reservation Successful !</DialogTitle>
@@ -24,7 +25,13 @@ const ReservationSuccessModal = ({ open, onClose, tableID }) => {
               You have successfully placed a reservation.
             </Typography>
             <Typography variant="body1">
-              Your table ID is: {tableID}
+              Your table ID is {tableID} !
+            </Typography>
+            <Typography variant="body1">
+              Please bring this key with you :
+            </Typography>
+            <Typography variant="body1">
+              {reservationKey}
             </Typography>
           </Grid>
           <Grid item>

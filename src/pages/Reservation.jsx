@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-
-import { auth, provider } from '../lib/firebase';
+import { auth } from '../lib/firebase';
 import {
   FormControl,
   InputLabel,
@@ -10,7 +9,7 @@ import {
   TextField,
   Container,
   Typography,
-  Paper
+  Paper,
 } from '@mui/material';
 import { Navbar } from '../components/Navbar';
 import {
@@ -18,85 +17,100 @@ import {
   addDoc,
   getDocs,
   serverTimestamp,
-  doc,
-  Timestamp, // Import Timestamp from Firestore
+  Timestamp,
 } from 'firebase/firestore';
-import { db } from '../lib/firebase.js';
-import ReservartionSuccessModal from '../components/ReservationSuccessModal';
+import { db } from '../lib/firebase';
+import ReservationSuccessModal from '../components/ReservationSuccessModal';
+import { v4 as uuidv4 } from 'uuid';
 
 const ReservationForm = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [guests, setGuests] = useState(1);
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().substr(0, 10));
+  const [selectedDate, setSelectedDate] = useState(
+    new Date().toISOString().substr(0, 10)
+  );
   const [selectedStartTime, setSelectedStartTime] = useState('');
   const [selectedHours, setSelectedHours] = useState(1);
   const [successModalOpen, setSuccessModalOpen] = useState(false);
   const [tableID, setTableID] = useState('');
+  const [reservationKey, setReservationKey] = useState('');
 
   const user = auth.currentUser;
   const userID = user ? user.uid : null;
 
   const handleReservation = async () => {
     try {
+      // Validate name, email, and other inputs
+      if (!name || !email || !selectedDate || !selectedStartTime) {
+        //show a popup to tell user to fill in all fields
+
+
+        alert('Please fill out all required fields.');
+        throw new Error('Please fill out all required fields.');
+      }
+
       // Validate date and time format
       const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
       const timeRegex = /^\d{2}:\d{2}$/;
-  
+
       if (!dateRegex.test(selectedDate) || !timeRegex.test(selectedStartTime)) {
         throw new Error('Invalid date or time format');
       }
-  
+
       // Combine selectedDate and selectedStartTime into a single ISO 8601 datetime string
       const formattedDateTime = `${selectedDate}T${selectedStartTime}:00.000Z`;
       const startTime = new Date(formattedDateTime);
       const endTime = new Date(startTime);
       endTime.setHours(startTime.getHours() + parseInt(selectedHours));
-  
+
       // Query Firestore to get all documents in the 'tables' collection
       const tablesCollectionRef = collection(db, 'tables');
       const tablesSnapshot = await getDocs(tablesCollectionRef);
-  
+
       if (tablesSnapshot.empty) {
         console.log('No tables found');
         return;
       }
-  
+
       // Initialize an array to store available table IDs
       const availableTableIDs = [];
-  
+
       // Iterate through the tables collection to find available tables
       tablesSnapshot.forEach((tableDoc) => {
         const tableData = tableDoc.data();
         const tableID = tableDoc.id;
-  
+
         // Check if the table is available
         if (tableData.isAvailable) {
           availableTableIDs.push(tableID);
         }
       });
-  
+
       // Query Firestore to get all documents in the 'tableBookings' collection
       const tableBookingsCollectionRef = collection(db, 'tableBookings');
       const tableBookingsSnapshot = await getDocs(tableBookingsCollectionRef);
-  
+
       // Iterate through the tableBookings collection to check for conflicts
       tableBookingsSnapshot.forEach((bookingDoc) => {
         const bookingData = bookingDoc.data();
         const bookingStartTime = bookingData.start.toDate();
         const bookingEndTime = bookingData.end.toDate();
-  
+
         // Check if there is any overlap in time slots
         for (const availableTableID of availableTableIDs) {
           const selectedDateTimeRange = {
             start: startTime,
             end: endTime,
           };
-  
+
           if (
-            (selectedDateTimeRange.start >= bookingStartTime && selectedDateTimeRange.start < bookingEndTime) ||
-            (selectedDateTimeRange.end > bookingStartTime && selectedDateTimeRange.end <= bookingEndTime) ||
-            (selectedDateTimeRange.start <= bookingStartTime && selectedDateTimeRange.end >= bookingEndTime)
+            (selectedDateTimeRange.start >= bookingStartTime &&
+              selectedDateTimeRange.start < bookingEndTime) ||
+            (selectedDateTimeRange.end > bookingStartTime &&
+              selectedDateTimeRange.end <= bookingEndTime) ||
+            (selectedDateTimeRange.start <= bookingStartTime &&
+              selectedDateTimeRange.end >= bookingEndTime)
           ) {
             // Remove the table ID from availableTableIDs if there's a conflict
             const index = availableTableIDs.indexOf(availableTableID);
@@ -106,31 +120,38 @@ const ReservationForm = () => {
           }
         }
       });
-  
+
       if (availableTableIDs.length > 0) {
         // Get the first available table ID
         const availableTableID = availableTableIDs[0];
         setTableID(availableTableID); // Set the tableID in state
         setSuccessModalOpen(true); // Open the success modal
         console.log('Available table ID:', availableTableID);
-  
+
+        // Generate a random string using UUID for the reservation key
+        const randomString = uuidv4();
+        setReservationKey(randomString);
+
         // The selected time slot is available, add the reservation to tableBookings
         const reservationData = {
           name: name,
           email: email,
           numGuests: guests,
           dateTime: serverTimestamp(),
-          tableID: availableTableID,
+          tableID: parseInt(availableTableID),
           start: Timestamp.fromDate(startTime),
           end: Timestamp.fromDate(endTime),
           userID: userID,
+          key: randomString,
         };
-  
+
         const tableBookingRef = collection(db, 'tableBookings');
         await addDoc(tableBookingRef, reservationData);
-  
+
         console.log('Reservation added to tableBookings');
         console.log('Reservation successful');
+
+        console.log(`Your reservation key is: ${randomString}`);
       } else {
         // No available tables or selected time slot is no longer available
         console.log('No available tables or selected time slot is no longer available');
@@ -167,7 +188,10 @@ const ReservationForm = () => {
             />
             <FormControl fullWidth sx={{ marginTop: 2 }}>
               <InputLabel>Number of Guests</InputLabel>
-              <Select value={guests} onChange={(e) => setGuests(e.target.value)}>
+              <Select
+                value={guests}
+                onChange={(e) => setGuests(e.target.value)}
+              >
                 {[1, 2, 3, 4, 5, 6].map((guestCount) => (
                   <MenuItem key={guestCount} value={guestCount}>
                     {guestCount}
@@ -204,7 +228,10 @@ const ReservationForm = () => {
               />
               <FormControl sx={{ flex: '1', marginLeft: 0, marginRight: 0 }}>
                 <InputLabel>Number of Hours</InputLabel>
-                <Select value={selectedHours} onChange={(e) => setSelectedHours(e.target.value)}>
+                <Select
+                  value={selectedHours}
+                  onChange={(e) => setSelectedHours(e.target.value)}
+                >
                   {[1, 2, 3].map((hourCount) => (
                     <MenuItem key={hourCount} value={hourCount}>
                       {hourCount}
@@ -231,10 +258,11 @@ const ReservationForm = () => {
                 Reserve Table
               </Button>
             </Container>
-            <ReservartionSuccessModal
+            <ReservationSuccessModal
               open={successModalOpen}
               onClose={() => setSuccessModalOpen(false)}
               tableID={tableID}
+              reservationKey={reservationKey}
             />
           </div>
         </Paper>

@@ -39,7 +39,7 @@ const Menu = () => {
                 price={menuItem.price}
                 description={menuItem.description}
                 type={menuItem.type}
-                imageUrl={`https://source.unsplash.com/random/300x200?sig=${menuItem.id}`} // You can replace menuItem.id with a unique identifier from your data
+                imageUrl={menuItem.url} // You can replace menuItem.id with a unique identifier from your data
                 />
             </Grid>
             ))}

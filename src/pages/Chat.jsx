@@ -93,7 +93,7 @@ const Chat = () => {
       <Navbar />
       <Container maxWidth="lg">
         {/* Chatbot Interface */}
-        <Paper elevation={3} style={{ padding: '20px', marginTop: '20px' }}>
+        <Paper elevation={3}  style={{ padding: '20px', marginTop: '20px' }}>
           <Typography variant="h4" gutterBottom>
             Chat with Us
           </Typography>
@@ -131,6 +131,7 @@ const Chat = () => {
           <Button
             variant="contained"
             color="primary"
+            size="large"
             onClick={handleSendMessage}
             ref={sendButtonRef} // Assign the ref to the Send button
           >

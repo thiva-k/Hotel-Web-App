@@ -17,9 +17,9 @@ export const RoomCard = ({ room }) => {
 
         {/* Add the image below the title */}
         <img
-          src={`https://source.unsplash.com/random/300x200?sig=${randomImageSig}`}
+          src={room.images[0] + `?sig=${randomImageSig}`}
           alt="Room"
-          style={{ width: '100%', height: 'auto',cursor: 'pointer' }}
+          style={{ width: '100%', height: '210px',cursor: 'pointer' }}
           onClick={() => navigate(`/rooms/${room.id}`)}
           // focus when hovered
           
