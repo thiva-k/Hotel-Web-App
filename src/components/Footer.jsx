@@ -3,57 +3,55 @@ import { Container, Grid, Link, Typography } from '@mui/material';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import TwitterIcon from '@mui/icons-material/Twitter';
 import InstagramIcon from '@mui/icons-material/Instagram';
-import { styled } from '@mui/system';
-
-const FooterRoot = styled('div')({
-  backgroundColor: (theme) => theme.palette.primary.main,
-  color: 'white',
-  padding: '32px 0',
-  width: '100%',
-});
-
-const FooterContainer = styled(Container)({
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  maxWidth: '100%',
-  padding: '0', // Disable gutters
-});
-
-const LogoImage = styled('img')({
-  width: '70px',
-  height: 'auto',
-  marginRight: '24px', // Add spacing between logo and links
-  filter: "invert(1)",
-});
-
-const SocialIcons = styled('div')({
-  display: 'flex',
-  alignItems: 'center',
-});
-
-const SocialLink = styled(Link)({
-  color: 'white',
-  textDecoration: 'none',
-  margin: '0 12px',
-  '&:hover': {
-    textDecoration: 'underline',
-  },
-});
 
 function Footer() {
+  const footerStyle = {
+    backgroundColor: '#f5f5f5', // Slightly gray background
+    color: 'black', // Text color
+    padding: '5px 100px',
+    width: '100%',
+    boxShadow: '0px -2px 8px rgba(0, 0, 0, 0.1)', // Elevate the footer
+    marginTop: '100px', // Add spacing between footer and content
+  };
+
+  const containerStyle = {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    maxWidth: '100%',
+    padding: '0', // Disable gutters
+  };
+
+  const logoImageStyle = {
+    width: '70px',
+    height: 'auto',
+    marginRight: '16px', // Add spacing between logo and links
+    filter: 'invert(1)',
+  };
+
+  const socialIconsStyle = {
+    display: 'flex',
+    alignItems: 'center',
+  };
+
+  const socialLinkStyle = {
+    color: 'black', // Social icons color
+    textDecoration: 'none',
+    margin: '0 12px', // Add spacing between social icons
+  };
+
   return (
-    <FooterRoot>
-      <FooterContainer disableGutters>
-        <LogoImage src="/crown_logo.svg" alt="Crown Logo" />
-        <Grid container alignItems="center" justifyContent="flex-end"> {/* Align links to the right */}
+    <div style={footerStyle}>
+      <Container disableGutters style={containerStyle}>
+        <img src="/crown_logo.svg" alt="Crown Logo" style={logoImageStyle} />
+        <Grid container alignItems="center" justifyContent="space-between">
           <Grid item>
-            <SocialIcons>
+            <div style={socialIconsStyle}>
               <Link
                 href="https://www.facebook.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                component={SocialLink}
+                style={socialLinkStyle}
               >
                 <FacebookIcon fontSize="large" />
               </Link>
@@ -61,7 +59,7 @@ function Footer() {
                 href="https://www.twitter.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                component={SocialLink}
+                style={socialLinkStyle}
               >
                 <TwitterIcon fontSize="large" />
               </Link>
@@ -69,25 +67,28 @@ function Footer() {
                 href="https://www.instagram.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                component={SocialLink}
+                style={socialLinkStyle}
               >
                 <InstagramIcon fontSize="large" />
               </Link>
-            </SocialIcons>
+            </div>
           </Grid>
           <Grid item>
             <Typography variant="body2">
-              <Link href="/about" component={SocialLink}>
+              <Link href="/about" style={socialLinkStyle}>
                 About
               </Link>
-              <Link href="/chat" component={SocialLink}>
+              <Link href="/chat" style={socialLinkStyle}>
                 Contact Us
               </Link>
             </Typography>
           </Grid>
         </Grid>
-      </FooterContainer>
-    </FooterRoot>
+      </Container>
+      <Typography variant="body2" align="center" style={{ marginTop: '16px' }}>
+        ©2023 Group 23. All Rights Reserved.
+      </Typography>
+    </div>
   );
 }
 

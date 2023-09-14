@@ -12,6 +12,7 @@ import {
 } from '@mui/material';
 import { Navbar } from '../components/Navbar';
 import Carousel from 'react-material-ui-carousel';
+import Footer from '../components/Footer';
 
 const AboutUs = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -42,17 +43,19 @@ const AboutUs = () => {
   ]
 
   return (
+  <>  
     <div>
       <Navbar />
       <Container maxWidth="lg">
         {/* Hotel Section */}
         <Paper elevation={3} sx={{ padding: 3, marginTop: 5 }}>
           <Typography variant="h4" gutterBottom>
-            Welcome to Crown Hotels
+            Welcome to Crown Hotels, A Perfect Blend of Comfort and Culinary Delights !
           </Typography>
           <Typography variant="body1" paragraph>
-            Discover a world of luxury and comfort at our hotels. We offer a
-            variety of elegant rooms and suites to make your stay memorable.
+          "Welcome to Crown Hotels, where comfort meets culinary excellence. Our hotel offers cozy rooms with modern amenities and a renowned restaurant serving a delectable fusion of local and international flavors. Whether you're here for business or leisure, we provide a warm and welcoming retreat where you can indulge in the art of fine dining and experience exceptional hospitality. Join us at Crown Hotels for a memorable stay that combines luxurious comfort with gastronomic delight."
+
+
           </Typography>
           <Carousel
             index={currentSlide}
@@ -118,6 +121,9 @@ const AboutUs = () => {
         </Paper>
       </Container>
     </div>
+    <Footer/>
+
+  </>   
   );
 };
 

@@ -14,6 +14,7 @@ import {
 import { Navbar } from "../components/Navbar";
 import { BookingModal } from "../components/BookingModal";
 import { Toaster } from "react-hot-toast";
+import Footer from "../components/Footer";
 
 const RoomInfo = () => {
   const { id } = useParams();
@@ -40,6 +41,7 @@ const RoomInfo = () => {
   }, [id]);
 
   return (
+  <>
     <>
       <Navbar />
       <main>
@@ -51,7 +53,7 @@ const RoomInfo = () => {
         >
           {room && (
             <>
-              <Typography fontSize={40} sx={{ lineHeight: 1.9, marginBottom: 3 }}>
+              <Typography variant="h4"  sx={{ lineHeight: 1.9, marginBottom: 3,fontWeight: "bold" }}>
                 {room.title}
               </Typography>
 
@@ -87,8 +89,8 @@ const RoomInfo = () => {
                   marginTop: 5,
                 }}
               >
-                <Typography fontSize={20} sx={{ marginBottom: 2 }}>
-                  Room Details:
+                <Typography variant="h5" sx={{ marginBottom: 2,fontWeight: "bold" }}>
+                  Room Details
                 </Typography>
                 <Typography fontSize={18}>Number of Beds: {room.numBeds}</Typography>
                 <Typography fontSize={18}>Number of Baths: {room.numBaths}</Typography>
@@ -96,7 +98,7 @@ const RoomInfo = () => {
                 <Typography fontSize={18}>Maximum Guests: {room.maxGuests}</Typography>
               </Box>
 
-              <Typography fontSize={20} sx={{ marginTop: 5 }}>
+              <Typography variant="h5"  sx={{ marginTop: 5,fontWeight: "bold" }}>
                 What this room offers:
               </Typography>
               <Box
@@ -109,7 +111,7 @@ const RoomInfo = () => {
               >
                 {room.offers.map((offer, index) => (
                   <Typography fontSize={18} key={index} variant="caption">
-                    {offer}
+                     {offer}
                   </Typography>
                 ))}
               </Box>
@@ -120,7 +122,6 @@ const RoomInfo = () => {
                 sx={{
                   display: "flex",
                   marginTop: 2,
-                  marginBottom: 5,
                   justifyContent: "center",
                 }}
               >
@@ -143,6 +144,8 @@ const RoomInfo = () => {
         }}
       />
     </>
+    <Footer />
+  </>
   );
 };
 

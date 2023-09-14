@@ -11,6 +11,7 @@ import {
   ListItemText,
 } from '@mui/material';
 import { Navbar } from '../components/Navbar';
+import Footer from '../components/Footer';
 
 const Chat = () => {
   const [messages, setMessages] = useState([]);
@@ -89,6 +90,7 @@ const Chat = () => {
   ];
 
   return (
+  <>
     <div>
       <Navbar />
       <Container maxWidth="lg">
@@ -176,6 +178,8 @@ const Chat = () => {
         </Paper>
       </Container>
     </div>
+    <Footer/>
+  </>
   );
 };
 

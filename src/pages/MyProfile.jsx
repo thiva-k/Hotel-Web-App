@@ -22,6 +22,7 @@ import { Navbar } from "../components/Navbar";
 import { AuthContext } from "../context/AuthContext";
 import { db } from "../lib/firebase";
 import { format } from "date-fns"; // Import the 'format' function for date formatting
+import Footer from "../components/Footer";
 
 export default function MyProfile() {
   const { currentUser } = useContext(AuthContext);
@@ -75,6 +76,7 @@ export default function MyProfile() {
   }, [currentUser]);
 
   return (
+  <>
     <>
       <Navbar />
       <Container maxWidth={"lg"}>
@@ -177,5 +179,7 @@ export default function MyProfile() {
         </TableContainer>
       </Container>
     </>
+    <Footer/>
+  </>
   );
 }

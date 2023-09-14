@@ -22,6 +22,7 @@ import {
 import { db } from '../lib/firebase';
 import ReservationSuccessModal from '../components/ReservationSuccessModal';
 import { v4 as uuidv4 } from 'uuid';
+import Footer from '../components/Footer';
 
 const ReservationForm = () => {
   const [name, setName] = useState('');
@@ -162,6 +163,7 @@ const ReservationForm = () => {
   };
 
   return (
+  <>
     <>
       <Navbar />
       <Container disableGutters maxWidth={'md'} sx={{ marginTop: 5 }}>
@@ -268,6 +270,8 @@ const ReservationForm = () => {
         </Paper>
       </Container>
     </>
+    <Footer />
+  </>
   );
 };
 

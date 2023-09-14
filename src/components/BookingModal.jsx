@@ -14,12 +14,13 @@ import {
 import { DateRange } from "react-date-range";
 import { getDate } from "date-fns";
 import { AuthContext } from "../context/AuthContext";
-import { addDoc, collection } from "firebase/firestore";
+import { addDoc, collection, getDocs } from "firebase/firestore";
 import { db } from "../lib/firebase";
 import { LoadingSpinner } from "../components/LoadingSpinner";
 import { toast } from "react-hot-toast";
 import { bookModalStyle } from "../helper/styles";
 import { useNavigate } from "react-router-dom";
+import RoomBookingSuccessModal  from "./RoomBookingSuccessModal";
 
 export const BookingModal = ({ open, handleClose, room }) => {
   const { currentUser } = useContext(AuthContext);
@@ -34,6 +35,10 @@ export const BookingModal = ({ open, handleClose, room }) => {
     },
   ]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+
+  // Define a Set to keep track of booked room numbers
+  const bookedRoomNumbers = new Set();
 
   useEffect(() => {
     // Calculate the maximum number of guests based on room data
@@ -68,10 +73,10 @@ export const BookingModal = ({ open, handleClose, room }) => {
     const pricePerNight = room?.pricePerNight || 0;
     const totalNights = getTotalNightsBooked();
     const totalPrice = pricePerNight * totalNights;
-
+  
     const startDate = dates[0]?.startDate;
     const endDate = dates[0]?.endDate;
-
+  
     // Format the dates to the desired format
     const formattedStartDate = startDate.toLocaleString("en-US", {
       weekday: "short",
@@ -83,7 +88,7 @@ export const BookingModal = ({ open, handleClose, room }) => {
       second: "2-digit",
       timeZoneName: "short",
     });
-
+  
     const formattedEndDate = endDate.toLocaleString("en-US", {
       weekday: "short",
       year: "numeric",
@@ -94,28 +99,83 @@ export const BookingModal = ({ open, handleClose, room }) => {
       second: "2-digit",
       timeZoneName: "short",
     });
-
-    await addDoc(bookings, {
-      roomTitle: room?.title || "Room",
-      numberOfGuests: selectedGuestCount,
-      bookingStartDate: formattedStartDate, // Use formatted date
-      bookingEndDate: formattedEndDate, // Use formatted date
-      price: totalPrice,
-      bookedBy: {
-        uid,
-        displayName,
-      },
-    })
-      .then(() => {
-        toast.success("Booking successful");
-        handleClose();
-        navigate('/my-profile');
+  
+    // Declare availableRoomNum outside of the if block
+    let availableRoomNum = null;
+  
+    // Create a variable to keep track of the number of reserved rooms
+    let numReserved = 0;
+  
+    // Iterate through the bookings collection to check for overlapping bookings
+    const querySnapshot = await getDocs(bookings);
+    querySnapshot.forEach((doc) => {
+      const booking = doc.data();
+  
+      // Convert the booking start and end dates to JavaScript Date objects
+      const bookingStartDate = new Date(booking.bookingStartDate);
+      const bookingEndDate = new Date(booking.bookingEndDate);
+  
+      // Check if the current booking overlaps with the selected time period
+      if (
+        (startDate >= bookingStartDate && startDate < bookingEndDate) ||
+        (endDate > bookingStartDate && endDate <= bookingEndDate)
+      ) {
+        if (booking.roomTitle === room?.title) {
+          numReserved++;
+          // Add booked room numbers to the set
+          if (booking.roomNum) {
+            bookedRoomNumbers.add(booking.roomNum);
+          }
+        }
+      }
+    });
+  
+    // Compare numReserved with room.numRooms and proceed accordingly
+    if (numReserved < room?.numRooms) {
+      // Find the first available room number for the selected room title
+      const maxRoomNum = room?.numRooms || 0; // Maximum room number for the selected room title
+      for (let i = 1; i <= maxRoomNum; i++) {
+        if (!bookedRoomNumbers.has(i)) {
+          availableRoomNum = i;
+          break; // Found an available room number, exit the loop
+        }
+      }
+  
+      if (availableRoomNum !== null) {
+        // Proceed with the booking and assign the available room number
+        await addDoc(bookings, {
+          roomTitle: room?.title || "Room",
+          numberOfGuests: selectedGuestCount,
+          bookingStartDate: formattedStartDate,
+          bookingEndDate: formattedEndDate,
+          price: totalPrice,
+          bookedBy: {
+            uid,
+            displayName,
+          },
+          roomNum: availableRoomNum, // Assign the available room number
+        })
+          .then(() => {
+            toast.success("Booking successful");
+            handleClose();
+            navigate("/my-profile");
+            setIsLoading(false);
+            alert("Sucessfully reserved " + room?.title + " Room Number :" + availableRoomNum);
+          })
+          .catch((error) => {
+            toast.error(error.message);
+            setIsLoading(false);
+          });
+      } else {
+        // Show an alert indicating that all rooms of the selected type are fully booked during the selected period
+        alert("Sorry, all rooms of this type are fully booked during the selected period.");
         setIsLoading(false);
-      })
-      .catch((error) => {
-        toast.error(error.message);
-        setIsLoading(false);
-      });
+      }
+    } else {
+      // Show an alert indicating that the room is fully booked during the selected period
+      alert("Sorry, these rooms are fully booked during the selected period.");
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -211,6 +271,14 @@ export const BookingModal = ({ open, handleClose, room }) => {
             "Reserve"
           )}
         </Button>
+        {isSuccessModalOpen && (
+          <RoomBookingSuccessModal
+            open={isSuccessModalOpen}
+            onClose={handleClose}
+            roomTitle={room?.title || "Room"}
+            roomNum={availableRoomNum}
+          />
+        )}
       </Box>
     </Modal>
   );

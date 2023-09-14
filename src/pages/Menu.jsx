@@ -5,6 +5,7 @@ import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import {MenuCard} from '../components/MenuCard';
 import { Navbar } from '../components/Navbar';
+import Footer from '../components/Footer';
 
 const Menu = () => {
   const [menuItems, setMenuItems] = useState([]);
@@ -28,6 +29,7 @@ const Menu = () => {
   }, []);
 
   return (
+  <> 
     <>
         <Navbar />
         <Container maxWidth="lg" sx={{marginTop:3}}>
@@ -46,6 +48,8 @@ const Menu = () => {
         </Grid>
         </Container>
     </>
+    <Footer />
+  </>  
   );
 };
 
