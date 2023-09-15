@@ -11,12 +11,15 @@ import {
   FormGroup,
   FormControlLabel,
   Toolbar,
+  Button
 } from "@mui/material";
 
 import { useNavigate, useLocation } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { auth } from "../lib/firebase";
 import { MaterialUISwitch } from "./Switch";
+import { signInWithPopup } from "firebase/auth";
+import { provider, db } from "../lib/firebase";
 
 export const Navbar = () => {
   const { currentUser, setDarkMode } = useContext(AuthContext);
@@ -34,7 +37,26 @@ export const Navbar = () => {
   };
 
   const handleLogout = async () => {
+    setAnchorEl(null); 
     await auth.signOut().then(() => navigate("/"));
+  };
+
+  const handleLogin = async () => {
+    signInWithPopup(auth, provider)
+      .then(async (result) => {
+        const user = result.user;
+        if (user) {
+          await setDoc(doc(db, "webCustomers", user.uid), {
+            uid: user.uid,
+            displayName: user.displayName,
+            photoURL: user.photoURL,
+          });
+        }
+      })
+      .catch((error) => {
+        const errorMessage = error.message;
+        toast.error(errorMessage);
+      });
   };
 
   const tabs = [
@@ -45,7 +67,8 @@ export const Navbar = () => {
     { label: "About Us", path: "/about" },
   ];
 
-  return (
+  if(currentUser){
+   return( 
     <AppBar position="sticky" color="inherit">
       <Container maxWidth="lg">
         <Toolbar
@@ -172,5 +195,77 @@ export const Navbar = () => {
         </div>
       </Container>
     </AppBar>
-  );
-};
+   ) 
+  }else{
+
+  return(<> 
+   
+   <AppBar position="sticky" color="inherit">
+      <Container maxWidth="lg">
+        <Toolbar
+          disableGutters
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            paddingY: 1.2,
+          }}
+        >
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+            <img
+              src="/crown_logo.svg"
+              alt="Crown Logo"
+              style={{
+                width: 60,
+                marginRight: 20,
+                filter: "invert(1)",
+              }}
+            />
+            
+          </Box>
+
+          <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+            <FormGroup sx={{ display: { xs: "none", md: "flex" } }}>
+              <FormControlLabel
+                control={
+                  <MaterialUISwitch
+                    onChange={() => setDarkMode((prev) => !prev)}
+                  />
+                }
+              />
+            </FormGroup>
+
+            <Typography
+              onClick={() => setDarkMode((prev) => !prev)}
+              sx={{ display: { xs: "block", md: "none" }, cursor: "pointer" }}
+              fontSize={15}
+              variant="h6"
+              color="inherit"
+              component="a"
+            >
+              DarkMode
+            </Typography>
+            <Button onClick={handleLogin} variant="outlined" color="primary" sx={{ }}>
+             Login
+           </Button>
+
+        </Box>    
+
+        
+        </Toolbar>
+
+        
+      </Container>
+      
+    </AppBar>
+    
+    
+    
+    
+    
+    
+    
+    
+    </>)
+   }
+}

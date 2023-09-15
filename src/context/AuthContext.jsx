@@ -7,9 +7,9 @@ export const AuthContextProvider = ({ children, setDarkMode }) => {
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
-      if (user) {
+      
         setCurrentUser(user);
-      }
+      
     });
     return () => unsubscribe();
   }, []);

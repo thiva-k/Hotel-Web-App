@@ -1,10 +1,16 @@
 import React from 'react';
-import { Container, Grid, Link, Typography } from '@mui/material';
+import { Container, Grid, Link, Typography,Paper } from '@mui/material';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import TwitterIcon from '@mui/icons-material/Twitter';
 import InstagramIcon from '@mui/icons-material/Instagram';
+import { AuthContext } from "../context/AuthContext";
+import { useState , useContext} from 'react';
+
+
 
 function Footer() {
+
+  const { currentUser } = useContext(AuthContext);
   const footerStyle = {
     backgroundColor: '#f5f5f5', // Slightly gray background
     color: 'black', // Text color
@@ -73,6 +79,7 @@ function Footer() {
               </Link>
             </div>
           </Grid>
+          {currentUser && (
           <Grid item>
             <Typography variant="body2">
               <Link href="/about" style={socialLinkStyle}>
@@ -82,7 +89,29 @@ function Footer() {
                 Contact Us
               </Link>
             </Typography>
-          </Grid>
+          </Grid> )}
+          {!currentUser && (
+          <Paper elevation={3} style={{ padding: '20px', marginTop: '20px', marginBottom: '20px' }}>
+          <Typography variant="h6" gutterBottom>
+            Contact Us
+          </Typography>
+          <Typography variant="body1" gutterBottom>
+            For inquiries, you can reach us at:
+          </Typography>
+          <Typography variant="body1" gutterBottom>
+            Phone: 011-123-4567
+          </Typography>
+          <Typography variant="body1" gutterBottom>
+            Email: info@crownhotels.com
+          </Typography>
+          <Typography variant="body1" gutterBottom>
+            Address: No.123, Kattubedda Road, Moratuwa
+          </Typography>
+        </Paper>
+
+
+
+          )}
         </Grid>
       </Container>
       <Typography variant="body2" align="center" style={{ marginTop: '16px' }}>

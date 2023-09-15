@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState , useContext} from 'react';
 import {
   Container,
   Typography,
@@ -13,9 +13,11 @@ import {
 import { Navbar } from '../components/Navbar';
 import Carousel from 'react-material-ui-carousel';
 import Footer from '../components/Footer';
+import { AuthContext } from "../context/AuthContext";
 
 const AboutUs = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const { currentUser } = useContext(AuthContext);
 
   const handleSlideChange = (index) => {
     setCurrentSlide(index);
@@ -121,7 +123,8 @@ const AboutUs = () => {
         </Paper>
       </Container>
     </div>
-    <Footer/>
+
+   <Footer/>
 
   </>   
   );

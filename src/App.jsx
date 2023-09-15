@@ -29,7 +29,7 @@ export default function App() {
           <Suspense fallback={<LoadingSkeleton />}>
             <QueryClientProvider client={queryClient}>
               <Routes>
-                <Route path="/" element={<Login />} />
+                <Route path="/" element={<AboutUs />} />
                 <Route
                   path="/rooms"
                   element={<PrivateRoute component={Home} />}
