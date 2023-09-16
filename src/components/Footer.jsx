@@ -92,21 +92,21 @@ function Footer() {
           </Grid> )}
           {!currentUser && (
           <Paper elevation={3} style={{ padding: '20px', marginTop: '20px', marginBottom: '20px' }}>
-          <Typography variant="h6" gutterBottom>
-            Contact Us
-          </Typography>
-          <Typography variant="body1" gutterBottom>
-            For inquiries, you can reach us at:
-          </Typography>
-          <Typography variant="body1" gutterBottom>
-            Phone: 011-123-4567
-          </Typography>
-          <Typography variant="body1" gutterBottom>
-            Email: info@crownhotels.com
-          </Typography>
-          <Typography variant="body1" gutterBottom>
-            Address: No.123, Kattubedda Road, Moratuwa
-          </Typography>
+            <Typography variant="h6" gutterBottom>
+              Contact Us
+            </Typography>
+            <Typography variant="body1" gutterBottom>
+              For inquiries, you can reach us at:
+            </Typography>
+            <Typography variant="body1" gutterBottom>
+              Phone: 011-123-4567
+            </Typography>
+            <Typography variant="body1" gutterBottom>
+              Email: info@crownhotels.com
+            </Typography>
+            <Typography variant="body1" gutterBottom>
+              Address: No.123, Kattubedda Road, Moratuwa
+            </Typography>
         </Paper>
 
 
@@ -115,7 +115,7 @@ function Footer() {
         </Grid>
       </Container>
       <Typography variant="body2" align="center" style={{ marginTop: '16px' }}>
-        ©2023 Group 23. All Rights Reserved.
+        ©2023 Group 24. All Rights Reserved.
       </Typography>
     </div>
   );
