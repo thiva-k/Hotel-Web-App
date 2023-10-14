@@ -12,8 +12,8 @@ import Reservation from "./pages/Reservation";
 import Menu from "./pages/Menu";
 import Chat from "./pages/Chat";
 import AboutUs from "./pages/AboutUs";
-
-const Home = lazy(() => import("./pages/Home"));
+import Home from "./pages/Home";
+// const Home = lazy(() => import("./pages/Home"));
 const RoomInfo = lazy(() => import("./pages/RoomInfo"));
 
 const queryClient = new QueryClient();
