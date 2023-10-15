@@ -1,3 +1,4 @@
+import React, { useContext, useEffect, useState } from "react";
 import {
   Container,
   Table,
@@ -9,6 +10,7 @@ import {
   Paper,
   Box,
   Typography,
+  Button,
 } from "@mui/material";
 import {
   collection,
@@ -16,12 +18,13 @@ import {
   query,
   where,
   orderBy,
+  deleteDoc, // Import 'deleteDoc' to delete Firestore documents
+  doc, // Import 'doc' to construct document references
 } from "firebase/firestore";
-import React, { useContext, useEffect, useState } from "react";
-import { Navbar } from "../components/Navbar";
+import { format } from "date-fns";
 import { AuthContext } from "../context/AuthContext";
 import { db } from "../lib/firebase";
-import { format } from "date-fns"; // Import the 'format' function for date formatting
+import {Navbar} from "../components/Navbar";
 import Footer from "../components/Footer";
 
 export default function MyProfile() {
@@ -55,8 +58,6 @@ export default function MyProfile() {
       orderBy("start", "desc")
     );
 
-    console.log(tableBookingsQuery);
-
     const unsubscribeTableBookings = onSnapshot(
       tableBookingsQuery,
       (snapshot) => {
@@ -75,9 +76,23 @@ export default function MyProfile() {
     };
   }, [currentUser]);
 
+  // Function to handle cancellation
+  const cancelReservation = async (type, id) => {
+    try {
+      if (type === "roomBooking") {
+        // Delete room booking record
+        await deleteDoc(doc(db, "bookings", id));
+      } else if (type === "tableBooking") {
+        // Delete table booking record
+        await deleteDoc(doc(db, "tableBookings", id));
+      }
+    } catch (error) {
+      console.error("Error cancelling reservation:", error);
+    }
+  };
+
   return (
-  <>
-    <>
+    <div>
       <Navbar />
       <Container maxWidth={"lg"}>
         <Box
@@ -100,6 +115,7 @@ export default function MyProfile() {
           />
           <Typography variant={"h6"}>{currentUser?.displayName}</Typography>
         </Box>
+        {/* Room Booking History */}
         <Typography marginTop={3} fontWeight={"bold"} variant={"h6"}>
           Room Booking History
         </Typography>
@@ -112,6 +128,7 @@ export default function MyProfile() {
                 <TableCell align="right">Check Out</TableCell>
                 <TableCell align="right">Number of Guests</TableCell>
                 <TableCell align="right">Price</TableCell>
+                <TableCell align="right">Actions</TableCell> {/* Add Actions column */}
               </TableRow>
             </TableHead>
             <TableBody>
@@ -133,12 +150,22 @@ export default function MyProfile() {
                     {row?.data?.numberOfGuests}
                   </TableCell>
                   <TableCell align="right">${row?.data?.price}</TableCell>
+                  <TableCell align="right">
+                    <Button
+                      variant="contained"
+                      color="error"
+                      onClick={() => cancelReservation("roomBooking", row.id)}
+                    >
+                      Cancel
+                    </Button>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         </TableContainer>
 
+        {/* Table Reservation History */}
         <Typography marginTop={3} fontWeight={"bold"} variant={"h6"}>
           Table Reservation History
         </Typography>
@@ -151,6 +178,7 @@ export default function MyProfile() {
                 <TableCell align="right">Start Time</TableCell>
                 <TableCell align="right">End Time</TableCell>
                 <TableCell align="right">Number of Guests</TableCell>
+                <TableCell align="right">Actions</TableCell> {/* Add Actions column */}
               </TableRow>
             </TableHead>
             <TableBody>
@@ -160,17 +188,22 @@ export default function MyProfile() {
                   sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                 >
                   <TableCell>{row?.data?.name}</TableCell>
-                  <TableCell align="right">
-                    {row?.data?.email}
-                  </TableCell>
+                  <TableCell align="right">{row?.data?.email}</TableCell>
                   <TableCell align="right">
                     {format(row?.data?.start.toDate(), "MM/dd/yyyy HH:mm")}
                   </TableCell>
                   <TableCell align="right">
                     {format(row?.data?.end.toDate(), "MM/dd/yyyy HH:mm")}
                   </TableCell>
+                  <TableCell align="right">{row?.data?.numGuests}</TableCell>
                   <TableCell align="right">
-                    {row?.data?.numGuests}
+                    <Button
+                      variant="contained"
+                      color="error"
+                      onClick={() => cancelReservation("tableBooking", row.id)}
+                    >
+                      Cancel
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))}
@@ -178,8 +211,7 @@ export default function MyProfile() {
           </Table>
         </TableContainer>
       </Container>
-    </>
-    <Footer/>
-  </>
+      <Footer />
+    </div>
   );
 }
