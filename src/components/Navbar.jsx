@@ -63,7 +63,7 @@ export const Navbar = () => {
     { label: "Book Rooms", path: "/rooms" },
     { label: "View Menu", path: "/menu" },
     { label: "Reserve Table", path: "/reserve" },
-    { label: "Chat With Us", path: "/chat" },
+    { label: "Contact Us", path: "/chat" },
     { label: "About Us", path: "/about" },
   ];
 

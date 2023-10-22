@@ -12,14 +12,8 @@ import {
   Paper,
 } from '@mui/material';
 import { Navbar } from '../components/Navbar';
-import {
-  collection,
-  addDoc,
-  getDocs,
-  serverTimestamp,
-  Timestamp,
-} from 'firebase/firestore';
-import { db } from '../lib/firebase';
+import { collection, addDoc, serverTimestamp, Timestamp,getDocs } from 'firebase/firestore';
+import { db } from '../lib/firebase'; // Import Firebase functions
 import ReservationSuccessModal from '../components/ReservationSuccessModal';
 import { v4 as uuidv4 } from 'uuid';
 import Footer from '../components/Footer';
@@ -28,9 +22,7 @@ const ReservationForm = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [guests, setGuests] = useState(1);
-  const [selectedDate, setSelectedDate] = useState(
-    new Date().toISOString().substr(0, 10)
-  );
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().substr(0, 10));
   const [selectedStartTime, setSelectedStartTime] = useState('');
   const [selectedHours, setSelectedHours] = useState(1);
   const [successModalOpen, setSuccessModalOpen] = useState(false);
@@ -44,11 +36,22 @@ const ReservationForm = () => {
     try {
       // Validate name, email, and other inputs
       if (!name || !email || !selectedDate || !selectedStartTime) {
-        //show a popup to tell user to fill in all fields
-
-
         alert('Please fill out all required fields.');
         throw new Error('Please fill out all required fields.');
+      }
+
+      // Validate name format (letters and spaces only)
+      const nameRegex = /^[A-Za-z\s]+$/;
+      if (!nameRegex.test(name)) {
+        alert('Please enter a valid name with letters and spaces only.');
+        throw new Error('Invalid name format');
+      }
+
+      // Validate email format
+      const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+      if (!emailRegex.test(email)) {
+        alert('Please enter a valid email address.');
+        throw Error('Invalid email format');
       }
 
       // Validate date and time format
@@ -153,17 +156,42 @@ const ReservationForm = () => {
         console.log('Reservation successful');
 
         console.log(`Your reservation key is: ${randomString}`);
+       // sendEmail(randomString); // Send an email with the reservation key
+        resetForm();
       } else {
         // No available tables or selected time slot is no longer available
         console.log('No available tables or selected time slot is no longer available');
+        alert('No available tables on selected time slot. Please select another time slot.');
       }
     } catch (error) {
       console.error('Error updating Firestore:', error);
     }
   };
 
+  const sendEmail = async (reservationKey) => {
+    try {
+      const sendReservationKeyEmail = functions.httpsCallable('sendReservationKeyEmail');
+
+      // Call the Firebase Cloud Function
+      await sendReservationKeyEmail({ email, reservationKey });
+
+      console.log(`Email sent to ${email} with reservation key.`);
+    } catch (error) {
+      console.error('Error sending email:', error);
+    }
+  };
+
+  // Reset the form
+  const resetForm = () => {
+    setName('');
+    setEmail('');
+    setGuests(1);
+    setSelectedDate(new Date().toISOString().substr(0, 10));
+    setSelectedStartTime('');
+    setSelectedHours(1);
+  };
+
   return (
-  <>
     <>
       <Navbar />
       <Container disableGutters maxWidth={'md'} sx={{ marginTop: 5 }}>
@@ -190,10 +218,7 @@ const ReservationForm = () => {
             />
             <FormControl fullWidth sx={{ marginTop: 2 }}>
               <InputLabel>Number of Guests</InputLabel>
-              <Select
-                value={guests}
-                onChange={(e) => setGuests(e.target.value)}
-              >
+              <Select value={guests} onChange={(e) => setGuests(e.target.value)}>
                 {[1, 2, 3, 4, 5, 6].map((guestCount) => (
                   <MenuItem key={guestCount} value={guestCount}>
                     {guestCount}
@@ -207,7 +232,13 @@ const ReservationForm = () => {
               fullWidth
               value={selectedDate}
               onChange={(e) => setSelectedDate(e.target.value)}
+              InputLabelProps={{
+                shrink: true,
+              }}
               sx={{ marginTop: 2 }}
+              inputProps={{
+                min: new Date().toISOString().split('T')[0],
+              }}
             />
             <Container
               disableGutters
@@ -269,9 +300,8 @@ const ReservationForm = () => {
           </div>
         </Paper>
       </Container>
+      <Footer />
     </>
-    <Footer />
-  </>
   );
 };
 

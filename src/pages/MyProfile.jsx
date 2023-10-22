@@ -18,13 +18,13 @@ import {
   query,
   where,
   orderBy,
-  deleteDoc, // Import 'deleteDoc' to delete Firestore documents
-  doc, // Import 'doc' to construct document references
+  deleteDoc,
+  doc,
 } from "firebase/firestore";
-import { format } from "date-fns";
+import { isAfter } from "date-fns";
 import { AuthContext } from "../context/AuthContext";
 import { db } from "../lib/firebase";
-import {Navbar} from "../components/Navbar";
+import { Navbar } from "../components/Navbar";
 import Footer from "../components/Footer";
 
 export default function MyProfile() {
@@ -91,6 +91,13 @@ export default function MyProfile() {
     }
   };
 
+  // Function to check if a room booking is in the future
+  const isFutureRoomBooking = (bookingEndDate) => {
+    const endDate = bookingEndDate.toDate(); // Convert Firestore Timestamp to JavaScript Date
+    const currentDate = new Date();
+    return isAfter(endDate, currentDate);
+  };
+
   return (
     <div>
       <Navbar />
@@ -128,7 +135,7 @@ export default function MyProfile() {
                 <TableCell align="right">Check Out</TableCell>
                 <TableCell align="right">Number of Guests</TableCell>
                 <TableCell align="right">Price</TableCell>
-                <TableCell align="right">Actions</TableCell> {/* Add Actions column */}
+                <TableCell align="right">Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -141,23 +148,29 @@ export default function MyProfile() {
                     {row?.data?.roomTitle}
                   </TableCell>
                   <TableCell align="right">
-                    {row?.data?.bookingStartDate}
+                    {row?.data?.bookingStartDate.toDate().toLocaleString()} {/* Convert Firestore Timestamp to a formatted date string */}
                   </TableCell>
                   <TableCell align="right">
-                    {row?.data?.bookingEndDate}
+                    {row?.data?.bookingEndDate.toDate().toLocaleString()} {/* Convert Firestore Timestamp to a formatted date string */}
                   </TableCell>
                   <TableCell align="right">
                     {row?.data?.numberOfGuests}
                   </TableCell>
-                  <TableCell align="right">${row?.data?.price}</TableCell>
                   <TableCell align="right">
-                    <Button
-                      variant="contained"
-                      color="error"
-                      onClick={() => cancelReservation("roomBooking", row.id)}
-                    >
-                      Cancel
-                    </Button>
+                    {row?.data?.price ? "$" + row?.data?.price : ""}
+                  </TableCell>
+                  <TableCell align="right">
+                    {isFutureRoomBooking(row?.data?.bookingEndDate) ? (
+                      <Button
+                        variant="contained"
+                        color="error"
+                        onClick={() => cancelReservation("roomBooking", row.id)}
+                      >
+                        Cancel
+                      </Button>
+                    ) : (
+                      "Completed"
+                    )}
                   </TableCell>
                 </TableRow>
               ))}
@@ -178,7 +191,7 @@ export default function MyProfile() {
                 <TableCell align="right">Start Time</TableCell>
                 <TableCell align="right">End Time</TableCell>
                 <TableCell align="right">Number of Guests</TableCell>
-                <TableCell align="right">Actions</TableCell> {/* Add Actions column */}
+                <TableCell align="right">Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -190,20 +203,24 @@ export default function MyProfile() {
                   <TableCell>{row?.data?.name}</TableCell>
                   <TableCell align="right">{row?.data?.email}</TableCell>
                   <TableCell align="right">
-                    {format(row?.data?.start.toDate(), "MM/dd/yyyy HH:mm")}
+                    {row?.data?.start.toDate().toLocaleString()} {/* Convert Firestore Timestamp to a formatted date string */}
                   </TableCell>
                   <TableCell align="right">
-                    {format(row?.data?.end.toDate(), "MM/dd/yyyy HH:mm")}
+                    {row?.data?.end.toDate().toLocaleString()} {/* Convert Firestore Timestamp to a formatted date string */}
                   </TableCell>
                   <TableCell align="right">{row?.data?.numGuests}</TableCell>
                   <TableCell align="right">
-                    <Button
-                      variant="contained"
-                      color="error"
-                      onClick={() => cancelReservation("tableBooking", row.id)}
-                    >
-                      Cancel
-                    </Button>
+                    {isAfter(new Date(), row.data.start.toDate()) ? (
+                      "Completed"
+                    ) : (
+                      <Button
+                        variant="contained"
+                        color="error"
+                        onClick={() => cancelReservation("tableBooking", row.id)}
+                      >
+                        Cancel
+                      </Button>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}

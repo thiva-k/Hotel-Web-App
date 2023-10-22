@@ -14,13 +14,13 @@ import {
 import { DateRange } from "react-date-range";
 import { getDate } from "date-fns";
 import { AuthContext } from "../context/AuthContext";
-import { addDoc, collection, getDocs } from "firebase/firestore";
+import { addDoc, collection, getDocs, Timestamp } from "firebase/firestore"; // Import Timestamp
 import { db } from "../lib/firebase";
 import { LoadingSpinner } from "../components/LoadingSpinner";
 import { toast } from "react-hot-toast";
 import { bookModalStyle } from "../helper/styles";
 import { useNavigate } from "react-router-dom";
-import RoomBookingSuccessModal  from "./RoomBookingSuccessModal";
+import RoomBookingSuccessModal from "./RoomBookingSuccessModal";
 
 export const BookingModal = ({ open, handleClose, room }) => {
   const { currentUser } = useContext(AuthContext);
@@ -73,48 +73,29 @@ export const BookingModal = ({ open, handleClose, room }) => {
     const pricePerNight = room?.pricePerNight || 0;
     const totalNights = getTotalNightsBooked();
     const totalPrice = pricePerNight * totalNights;
-  
+
     const startDate = dates[0]?.startDate;
     const endDate = dates[0]?.endDate;
-  
-    // Format the dates to the desired format
-    const formattedStartDate = startDate.toLocaleString("en-US", {
-      weekday: "short",
-      year: "numeric",
-      month: "short",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-      timeZoneName: "short",
-    });
-  
-    const formattedEndDate = endDate.toLocaleString("en-US", {
-      weekday: "short",
-      year: "numeric",
-      month: "short",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-      timeZoneName: "short",
-    });
-  
+
+    // Format the dates to Firestore Timestamp objects
+    const formattedStartDate = Timestamp.fromDate(startDate);
+    const formattedEndDate = Timestamp.fromDate(endDate);
+
     // Declare availableRoomNum outside of the if block
     let availableRoomNum = null;
-  
+
     // Create a variable to keep track of the number of reserved rooms
     let numReserved = 0;
-  
+
     // Iterate through the bookings collection to check for overlapping bookings
     const querySnapshot = await getDocs(bookings);
     querySnapshot.forEach((doc) => {
       const booking = doc.data();
-  
+
       // Convert the booking start and end dates to JavaScript Date objects
-      const bookingStartDate = new Date(booking.bookingStartDate);
-      const bookingEndDate = new Date(booking.bookingEndDate);
-  
+      const bookingStartDate = booking.bookingStartDate.toDate();
+      const bookingEndDate = booking.bookingEndDate.toDate();
+
       // Check if the current booking overlaps with the selected time period
       if (
         (startDate >= bookingStartDate && startDate < bookingEndDate) ||
@@ -129,7 +110,7 @@ export const BookingModal = ({ open, handleClose, room }) => {
         }
       }
     });
-  
+
     // Compare numReserved with room.numRooms and proceed accordingly
     if (numReserved < room?.numRooms) {
       // Find the first available room number for the selected room title
@@ -140,7 +121,7 @@ export const BookingModal = ({ open, handleClose, room }) => {
           break; // Found an available room number, exit the loop
         }
       }
-  
+
       if (availableRoomNum !== null) {
         // Proceed with the booking and assign the available room number
         await addDoc(bookings, {
@@ -160,7 +141,7 @@ export const BookingModal = ({ open, handleClose, room }) => {
             handleClose();
             navigate("/my-profile");
             setIsLoading(false);
-            alert("Sucessfully reserved " + room?.title + " Room Number :" + availableRoomNum);
+            setIsSuccessModalOpen(true);
           })
           .catch((error) => {
             toast.error(error.message);

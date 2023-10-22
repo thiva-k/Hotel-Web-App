@@ -58,7 +58,7 @@ const Chat = () => {
     ) {
       return 'You can browse through our Restaurant Menu from our website and reserve a table now to dine-in with us';
     } else {
-      return "I'm sorry, I didn't understand your question. Please ask something else.";
+      return "I'm sorry, I didn't understand your question. Please ask something else.You can browse through our Restaurant Menu from our website and reserve a table now to dine-in with us You can book a room by visiting our website and selecting your desired dates and room type. You can also contact us on info@crownhotels.com ";
     }
   };
 
@@ -94,6 +94,23 @@ const Chat = () => {
     <div>
       <Navbar />
       <Container maxWidth="lg">
+
+        {/* Frequently Asked Questions */}
+        <Paper elevation={3} style={{ padding: '20px', marginTop: '20px' }}>
+          <Typography variant="h4" gutterBottom>
+            Frequently Asked Questions
+          </Typography>
+          <List>
+            {faqs.map((faq, index) => (
+              <div key={index}>
+                <ListItem>
+                  <ListItemText primary={faq.question} secondary={faq.answer} />
+                </ListItem>
+                {index !== faqs.length - 1 && <Divider />}
+              </div>
+            ))}
+          </List>
+        </Paper>
         {/* Chatbot Interface */}
         <Paper elevation={3}  style={{ padding: '20px', marginTop: '20px' }}>
           <Typography variant="h4" gutterBottom>
@@ -141,22 +158,7 @@ const Chat = () => {
           </Button>
         </Paper>
 
-        {/* Frequently Asked Questions */}
-        <Paper elevation={3} style={{ padding: '20px', marginTop: '20px' }}>
-          <Typography variant="h4" gutterBottom>
-            Frequently Asked Questions
-          </Typography>
-          <List>
-            {faqs.map((faq, index) => (
-              <div key={index}>
-                <ListItem>
-                  <ListItemText primary={faq.question} secondary={faq.answer} />
-                </ListItem>
-                {index !== faqs.length - 1 && <Divider />}
-              </div>
-            ))}
-          </List>
-        </Paper>
+        
 
         {/* Contact Us */}
         <Paper elevation={3} style={{ padding: '20px', marginTop: '20px', marginBottom: '20px' }}>
