@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { auth } from '../lib/firebase';
 import {
   FormControl,
@@ -12,8 +12,14 @@ import {
   Paper,
 } from '@mui/material';
 import { Navbar } from '../components/Navbar';
-import { collection, addDoc, serverTimestamp, Timestamp,getDocs } from 'firebase/firestore';
-import { db } from '../lib/firebase'; // Import Firebase functions
+import {
+  collection,
+  addDoc,
+  serverTimestamp,
+  Timestamp,
+  getDocs,
+} from 'firebase/firestore';
+import { db } from '../lib/firebase';
 import ReservationSuccessModal from '../components/ReservationSuccessModal';
 import { v4 as uuidv4 } from 'uuid';
 import Footer from '../components/Footer';
@@ -28,47 +34,23 @@ const ReservationForm = () => {
   const [successModalOpen, setSuccessModalOpen] = useState(false);
   const [tableID, setTableID] = useState('');
   const [reservationKey, setReservationKey] = useState('');
+  const [availableTables, setAvailableTables] = useState([]);
 
   const user = auth.currentUser;
   const userID = user ? user.uid : null;
 
-  const handleReservation = async () => {
+  // Function to check table availability
+  const checkAvailability = async () => {
     try {
-      // Validate name, email, and other inputs
-      if (!name || !email || !selectedDate || !selectedStartTime) {
-        alert('Please fill out all required fields.');
-        throw new Error('Please fill out all required fields.');
+      if (!selectedDate || !selectedStartTime) {
+        return;
       }
 
-      // Validate name format (letters and spaces only)
-      const nameRegex = /^[A-Za-z\s]+$/;
-      if (!nameRegex.test(name)) {
-        alert('Please enter a valid name with letters and spaces only.');
-        throw new Error('Invalid name format');
-      }
-
-      // Validate email format
-      const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
-      if (!emailRegex.test(email)) {
-        alert('Please enter a valid email address.');
-        throw Error('Invalid email format');
-      }
-
-      // Validate date and time format
-      const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-      const timeRegex = /^\d{2}:\d{2}$/;
-
-      if (!dateRegex.test(selectedDate) || !timeRegex.test(selectedStartTime)) {
-        throw new Error('Invalid date or time format');
-      }
-
-      // Combine selectedDate and selectedStartTime into a single ISO 8601 datetime string
       const formattedDateTime = `${selectedDate}T${selectedStartTime}:00.000Z`;
       const startTime = new Date(formattedDateTime);
       const endTime = new Date(startTime);
       endTime.setHours(startTime.getHours() + parseInt(selectedHours));
 
-      // Query Firestore to get all documents in the 'tables' collection
       const tablesCollectionRef = collection(db, 'tables');
       const tablesSnapshot = await getDocs(tablesCollectionRef);
 
@@ -77,31 +59,25 @@ const ReservationForm = () => {
         return;
       }
 
-      // Initialize an array to store available table IDs
       const availableTableIDs = [];
 
-      // Iterate through the tables collection to find available tables
       tablesSnapshot.forEach((tableDoc) => {
         const tableData = tableDoc.data();
         const tableID = tableDoc.id;
 
-        // Check if the table is available
         if (tableData.isAvailable) {
           availableTableIDs.push(tableID);
         }
       });
 
-      // Query Firestore to get all documents in the 'tableBookings' collection
       const tableBookingsCollectionRef = collection(db, 'tableBookings');
       const tableBookingsSnapshot = await getDocs(tableBookingsCollectionRef);
 
-      // Iterate through the tableBookings collection to check for conflicts
       tableBookingsSnapshot.forEach((bookingDoc) => {
         const bookingData = bookingDoc.data();
         const bookingStartTime = bookingData.start.toDate();
         const bookingEndTime = bookingData.end.toDate();
 
-        // Check if there is any overlap in time slots
         for (const availableTableID of availableTableIDs) {
           const selectedDateTimeRange = {
             start: startTime,
@@ -116,7 +92,6 @@ const ReservationForm = () => {
             (selectedDateTimeRange.start <= bookingStartTime &&
               selectedDateTimeRange.end >= bookingEndTime)
           ) {
-            // Remove the table ID from availableTableIDs if there's a conflict
             const index = availableTableIDs.indexOf(availableTableID);
             if (index !== -1) {
               availableTableIDs.splice(index, 1);
@@ -125,46 +100,58 @@ const ReservationForm = () => {
         }
       });
 
-      if (availableTableIDs.length > 0) {
-        // Get the first available table ID
-        const availableTableID = availableTableIDs[0];
-        setTableID(availableTableID); // Set the tableID in state
-        setSuccessModalOpen(true); // Open the success modal
-        console.log('Available table ID:', availableTableID);
-
-        // Generate a random string using UUID for the reservation key
-        const randomString = uuidv4();
-        setReservationKey(randomString);
-
-        // The selected time slot is available, add the reservation to tableBookings
-        const reservationData = {
-          name: name,
-          email: email,
-          numGuests: guests,
-          dateTime: serverTimestamp(),
-          tableID: parseInt(availableTableID),
-          start: Timestamp.fromDate(startTime),
-          end: Timestamp.fromDate(endTime),
-          userID: userID,
-          key: randomString,
-        };
-
-        const tableBookingRef = collection(db, 'tableBookings');
-        await addDoc(tableBookingRef, reservationData);
-
-        console.log('Reservation added to tableBookings');
-        console.log('Reservation successful');
-
-        console.log(`Your reservation key is: ${randomString}`);
-       // sendEmail(randomString); // Send an email with the reservation key
-        resetForm();
-      } else {
-        // No available tables or selected time slot is no longer available
-        console.log('No available tables or selected time slot is no longer available');
-        alert('No available tables on selected time slot. Please select another time slot.');
-      }
+      setAvailableTables(availableTableIDs);
     } catch (error) {
-      console.error('Error updating Firestore:', error);
+      console.error('Error checking availability:', error);
+    }
+  };
+
+  useEffect(() => {
+    checkAvailability();
+  }, [selectedDate, selectedStartTime, selectedHours]);
+
+  const handleReservation = async () => {
+    if (!name || !email || !selectedDate || !selectedStartTime) {
+      alert('Please fill out all required fields.');
+      throw new Error('Please fill out all required fields.');
+    }
+
+    if (availableTables.length > 0) {
+      const formattedDateTime = `${selectedDate}T${selectedStartTime}:00.000Z`;
+      const startTime = new Date(formattedDateTime);
+      const endTime = new Date(startTime);
+      endTime.setHours(startTime.getHours() + parseInt(selectedHours));
+
+      // Generate a random string using UUID for the reservation key
+      const randomString = uuidv4();
+      setReservationKey(randomString);
+
+      // The selected time slot is available, add the reservation to tableBookings
+      const reservationData = {
+        name: name,
+        email: email,
+        numGuests: guests,
+        dateTime: serverTimestamp(),
+        tableID: parseInt(availableTables[0]), // Use the first available table
+        start: Timestamp.fromDate(startTime),
+        end: Timestamp.fromDate(endTime),
+        userID: userID,
+        key: randomString,
+      };
+
+      const tableBookingRef = collection(db, 'tableBookings');
+      await addDoc(tableBookingRef, reservationData);
+
+      setTableID(availableTables[0]); // Set the tableID in state
+      setSuccessModalOpen(true); // Open the success modal
+      console.log('Reservation added to tableBookings');
+      console.log('Reservation successful');
+      console.log(`Your reservation key is: ${randomString}`);
+      // sendEmail(randomString); // Send an email with the reservation key
+      resetForm();
+    } else {
+      console.log('No available tables or selected time slot is no longer available');
+      alert('No available tables on the selected time slot. Please select another time slot.');
     }
   };
 
@@ -181,7 +168,6 @@ const ReservationForm = () => {
     }
   };
 
-  // Reset the form
   const resetForm = () => {
     setName('');
     setEmail('');
@@ -196,6 +182,8 @@ const ReservationForm = () => {
       <Navbar />
       <Container disableGutters maxWidth={'md'} sx={{ marginTop: 5 }}>
         <Paper elevation={3} style={{ padding: '20px' }}>
+
+          {/* Reservation form */}
           <div>
             <Typography variant="h6" component="h2" align="center">
               Reserve A Table to Dine with Us Now!
@@ -273,15 +261,38 @@ const ReservationForm = () => {
                 </Select>
               </FormControl>
             </Container>
+
+                        <Typography
+              sx={{
+                marginTop: 3,
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                height: '50px',
+              }}
+              variant="body1"
+              align="center"
+              gutterBottom
+            >
+              Available Tables: &nbsp;
+              <span style={{ color: availableTables.length > 0 ? 'green' : 'inherit' }}>
+                {availableTables.length === 0
+                  ? '*Select Date and Time to Check Availability'
+                  : availableTables.length}
+              </span>
+            </Typography>
+
             <Container
               sx={{
-                marginTop: 5,
+                marginTop: 0,
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'center',
                 height: '50px',
               }}
             >
+
+              
               <Button
                 onClick={handleReservation}
                 variant="outlined"
