@@ -11,4 +11,4 @@ Customer Functionalities include :
 ● View Profile and Activity History
 ● Use Chatbot to get information
 
-
+Application Deployed at : https://hotelwebapp-dd5bb.web.app/
