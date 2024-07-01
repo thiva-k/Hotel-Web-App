@@ -12,3 +12,8 @@ Customer Functionalities include :
 ● Use Chatbot to get information
 
 Application Deployed at : https://hotelwebapp-dd5bb.web.app/
+
+Other Android Applications on the complete Hotel and Restaurant Management System:
+● Restaurant Order Manager: https://github.com/thiva-k/hotel_management
+● Hotel Management: https://github.com/Wathmiv/Hotel-Management
+● Virtual Waiter: https://github.com/kasunprabashwara/virtual_waiter
